@@ -1,0 +1,141 @@
+---
+title: "Trabajo3"
+author: 'Juan Alberto Martinez Lopez / Alberto Armijo Ru?z '
+date: "27 de mayo de 2017"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+#Librerías utilizadas.
+library("caret")
+```
+
+
+## 1. default of credit card clients Data Set (Clasificaci?n)
+
+La base de datos se centra en el caso de los pagos por defecto de los clientes en Taiw?n y compara la precisi?n predictiva de la probabilidad de incumplimiento entre seis m?todos de miner?a de datos. Desde la perspectiva de la gesti?n de riesgos, el resultado de la precisi?n predictiva de la probabilidad estimada de incumplimiento ser? m?s valioso que el resultado binario de la clasificaci?n - clientes cre?bles o no cre?bles. Con la probabilidad real de default como variable de respuesta (Y), y la probabilidad predictiva de default como variable independiente (X), el resultado de regresi?n lineal simple (Y = A + BX) muestra que el modelo de predicci?n producido por la red neuronal artificial tiene el mayor coeficiente de determinaci?n. Su intercepci?n de regresi?n (A) es cercana a cero, y el coeficiente de regresi?n (B) a uno. Por lo tanto, entre las seis t?cnicas de miner?a de datos, la red neuronal artificial es la ?nica que puede estimar con precisi?n la probabilidad real de incumplimiento. Dichas caracteristicas son:
+
+SBP: Presi?n arterial
+Tobbaco: El tabaco acululado en kg.
+LDL: Lipoproteina de baja densidad.
+Adiposity: Acumulacion excesiva de grasa en el organismo.
+Famhist: Historia familiar sobre casos de enfermedades cardiacas.
+Typea: Personalidad tipo A.
+Obesity: Obesidad.
+Alcohol Consumo de alcohol actual.
+Age: Edad.
+Chd: Respuesta a la enfermedad coronaria (la variable que queremos aprender).
+
+```{r} 
+setwd("~/Documentos/Segundo_Cuatrimestre/AA/Proyecto")
+credit_card =  read.csv("default_of_credict_card_clients.csv"
+                          , sep=",", header = TRUE, row.names =1)
+
+attach(credit_card)
+summary(credit_card)
+
+```
+
+```{r}
+set.seed(1)
+train = sample (nrow(credit_card), round(nrow(credit_card)*0.7)) 
+credit_card.train = credit_card[train,]  
+credit_card.test = credit_card[-train,]
+```
+
+## 2. Preprocesado de los datos.
+
+Lo primero que queremos hacer es comprobar si hay datos pérdidos, y si es así; reemplazaremos el valor pérdido.
+```{r}
+sum(which(is.na.data.frame(credit_card.train) == TRUE))
+anyNA(credit_card.train)
+```
+Como  no tenemos ningún dato pérdido, no tendremos que reemplazar los valores. Si hubieramos tenido valores tenido, podríamos haber utilizado la función _knnImputation_ para reemplazar los valores pérdidos por los k vecinos más cercanos (normalmente k=3). También podríamos utilizar la media como sustituto del valor pérdido.
+
+Lo siguiente que vamos a hacer es modificar aquellas columnas que separan los datos en variables "clases" como por ejemplo la columna _EDUCATION_, que indica que tipo de estudios tiene cada persona. Por cada tipo en los que los separe, crearemos una nueva columna que indique con 0s y 1s la pertenencia a ese tipo. También tenemos que realizar este proceso con la columna _MARRIAGE_
+
+```{r}
+# Modificamos la columna 2, llamada sex, para dividir los datos en 0=mujer, 1=hombre.
+credit_card.train$SEX = ifelse(credit_card.train$SEX == 2, 0, 1)
+summary(credit_card.train)
+```
+```{r}
+# También tenemos que modificar la columna EDUCATION, la dividiremos en cuatro columnas diferentes:
+# ed.other, ed.university, ed.high_school, ed.school
+ed.other = ifelse(credit_card.train$EDUCATION == 4, 1,0)
+ed.university = ifelse(credit_card.train$EDUCATION == 2, 1, 0)
+ed.high_school = ifelse(credit_card.train$EDUCATION == 3 | credit_card.train$EDUCATION == 2, 1, 0)
+ed.school = ifelse(credit_card.train$EDUCATION == 1 | credit_card.train$EDUCATION == 2 | credit_card.train$EDUCATION == 3, 1, 0)
+
+credit_card.train = cbind(credit_card.train,ed.other, ed.high_school, ed.school, ed.university)
+
+# Borramos la columna EDUCATION.
+credit_card.train = credit_card.train[,-which(colnames(credit_card.train) == "EDUCATION")]
+summary(credit_card.train)
+```
+
+```{r}
+# También tenemos que modificar la columna mariage. Introduciremos tres nueva columnas: marriage.married, marriage.single, marriage.others.
+marriage.married = ifelse(credit_card.train$MARRIAGE == 1, 1,0)
+marriage.single = ifelse(credit_card.train$MARRIAGE == 2, 1,0)
+marriage.others = ifelse(credit_card.train$MARRIAGE == 3, 1,0)
+
+# Introducimos los datos.
+credit_card.train = cbind(credit_card.train, marriage.married, marriage.single, marriage.others)
+
+# Borramos la variable MARRIAGE.
+credit_card.train = credit_card.train[, -which(colnames(credit_card.train) == "MARRIAGE")]
+summary(credit_card.train)
+```
+
+```{r}
+# Por último, utilizamos la función preprocess.
+trans = preProcess(credit_card.train, c("BoxCox", "scale", "center") )
+trainTransformado = predict(trans, credit_card.train)
+summary(trainTransformado)
+
+```
+
+  
+```{r}
+# Para hacer más sencillo hacer las transformaciones al conjunto de test, se crearán funciones para realizar todo lo anterior.
+
+# Función para comprobar si hay datos pérdidos y reemplazarlos.
+reemplazarCol = function(x){
+  # Columna SEX
+  x$SEX = ifelse(x$SEX == 2, 0, 1)
+  
+  # Columna EDUCATION.
+  x.other = ifelse(x$EDUCATION == 4, 1,0)
+  x.university = ifelse(x$EDUCATION == 2, 1, 0)
+  x.high_school = ifelse(x$EDUCATION == 3 | x$EDUCATION == 2, 1, 0)
+  x.school = ifelse(x$EDUCATION == 1 | x$EDUCATION == 2 | x$EDUCATION == 3, 1, 0)
+  x = cbind(x,x.other, x.high_school, x.school, x.university)
+
+  # Borramos la columna EDUCATION.
+  x = x[,-which(colnames(x) == "EDUCATION")]
+  
+  # Columna MARRIAGE.
+  x.married = ifelse(x$MARRIAGE == 1, 1,0)
+  x.single = ifelse(x$MARRIAGE == 2, 1,0)
+  x.others = ifelse(x$MARRIAGE == 3, 1,0)
+  
+  # Introducimos los datos.
+  x = cbind(x.train, x.married, x.single, x.others)
+  
+  # Borramos la variable MARRIAGE.
+  x = x[, -which(colnames(x) == "MARRIAGE")]
+  
+  x
+}
+preprocesar = function(x,pred=trans){
+  transTest = predict(pred, x)
+  transTest
+}
+```
+
