@@ -272,9 +272,10 @@ Eout.m1 = calculateError(pred.m1, testTransformado$default.payment.next.month)
 Eout.m1
 ```
 
-```{r}
-m2 = lm(default.payment.next.month~LIMIT_BAL+SEX+PAY_3+PAY_4+PAY_5+PAY_6+BILL_AMT1+BILL_AMT2+BILL_AMT3+PAY_AMT1+PAY_AMT2+PAY_AMT3+PAY_AMT3+PAY_AMT4+PAY_AMT5+PAY_AMT6+ed.other+ed.high_school+ed.school+ed.university+marriage.married+marriage.single, data=trainTransformado)
 
+
+```{r}
+m2 = glm(default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married+PAY_3+SEX+PAY_AMT2+ed.high_school+PAY_AMT4+marriage.single+marriage.others+BILL_AMT2,data=trainTransformado, family="binomial")
 predtr.m2 = predict(m2, trainTransformado)
 Ein.m2 = calculateError(predtr.m2, trainTransformado$default.payment.next.month)
 Ein.m2
@@ -284,8 +285,11 @@ Eout.m2 = calculateError(pred.m2, testTransformado$default.payment.next.month)
 Eout.m2
 ```
 
+
+
+
 ```{r}
-m3 = glm(default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married+PAY_3+SEX+PAY_AMT2+ed.high_school+PAY_AMT4+marriage.single+marriage.others+BILL_AMT2,data=trainTransformado, family="binomial")
+m3= glm(default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=trainTransformado, family="binomial" )
 predtr.m3 = predict(m3, trainTransformado)
 Ein.m3 = calculateError(predtr.m3, trainTransformado$default.payment.next.month)
 Ein.m3
@@ -293,38 +297,5 @@ Ein.m3
 pred.m3 = predict(m3, testTransformado)
 Eout.m3 = calculateError(pred.m3, testTransformado$default.payment.next.month)
 Eout.m3
-```
-
-```{r}
-m4 = lm(default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married+PAY_3+SEX+PAY_AMT2+ed.high_school+PAY_AMT4+marriage.single+marriage.others+BILL_AMT2,data=trainTransformado)
-predtr.m4 = predict(m4, trainTransformado)
-Ein.m4 = calculateError(predtr.m4, trainTransformado$default.payment.next.month)
-Ein.m4
-
-pred.m4 = predict(m4, testTransformado)
-Eout.m4 = calculateError(pred.m4, testTransformado$default.payment.next.month)
-Eout.m4
-```
-
-```{r}
-m5 = lm(default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=trainTransformado)
-predtr.m5 = predict(m5, trainTransformado)
-Ein.m5 = calculateError(predtr.m5, trainTransformado$default.payment.next.month)
-Ein.m5
-
-pred.m5 = predict(m5, testTransformado)
-Eout.m5 = calculateError(pred.m5, testTransformado$default.payment.next.month)
-Eout.m5
-```
-
-```{r}
-m6= glm(default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=trainTransformado, family="binomial" )
-predtr.m6 = predict(m6, trainTransformado)
-Ein.m6 = calculateError(predtr.m6, trainTransformado$default.payment.next.month)
-Ein.m6
-
-pred.m6 = predict(m6, testTransformado)
-Eout.m6 = calculateError(pred.m6, testTransformado$default.payment.next.month)
-Eout.m6
 ```
 
