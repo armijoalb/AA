@@ -1,10 +1,10 @@
 ---
 title: "Trabajo3"
-author: 'Juan Alberto Martinez Lopez / Alberto Armijo Ru?z '
+author: 'Juan Alberto Martinez Lopez / Alberto Armijo Ruiz '
 date: "27 de mayo de 2017"
 output:
-  word_document: default
   pdf_document: default
+  word_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -14,10 +14,11 @@ knitr::opts_chunk$set(echo = TRUE)
 #Librerías utilizadas.
 library("caret")
 library("leaps")
+library("e1071")
 ```
 
 
-## 1. default of credit card clients Data Set (Clasificaci?n)
+## 1. default of credit card clients Data Set (Clasificación)
 
 La base de datos se centra en el caso de los pagos por defecto de los clientes en Taiwán y compara la precisión predictiva de la probabilidad de incumplimiento entre seis métodos de minería de datos. Desde la perspectiva de la gestión de riesgos, el resultado de la precisión predictiva de la probabilidad estimada de incumplimiento será más valioso que el resultado binario de la clasificación - clientes creíbles o no creíbles. Con la probabilidad real de default como variable de respuesta (Y), y la probabilidad predictiva de default como variable independiente (X), el resultado de regresión lineal simple (Y = A + BX) muestra que el modelo de predicción producido por la red neuronal artificial tiene el mayor coeficiente de determinación. Su intercepción de regresión (A) es cercana a cero, y el coeficiente de regresión (B) a uno. Por lo tanto, entre las seis técnicas de minería de datos, la red neuronal artificial es la única que puede estimar con precisión la probabilidad real de incumplimiento. Dichas caracteristicas son:
 
