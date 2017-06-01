@@ -1,5 +1,5 @@
 ---
-title: "Trabajo3"
+title: "Proyecto Final"
 author: 'Juan Alberto Martinez Lopez / Alberto Armijo Ruiz '
 date: "27 de mayo de 2017"
 output:
@@ -48,7 +48,6 @@ default payment next month: Variable que aprendemos, basamos si lapersona pagar√
 ```{r} 
 credit_card =  read.csv("default_of_credict_card_clients.csv"
                           , sep=",", header = TRUE, row.names =1)
-attach(credit_card)
 summary(credit_card)
 
 ```
