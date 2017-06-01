@@ -167,10 +167,7 @@ pcaTransformation = prcomp(trainTransformado[,-default.payment.next.month], cent
 pcaTransformation$rotation
 ```
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 669a09705aa6b273d9511ea3062e1fc339efbf62
 Según los resultados del filtro PCA, no hay ningún dato que sea redundate. Por lo tanto, no eliminaremos ninguno de los atributos del conjunto de datos.
 
 ## Estudio de los parámetros e hiperparámetros.
