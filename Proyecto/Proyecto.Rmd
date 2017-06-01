@@ -159,7 +159,19 @@ preprocesar = function(x,pred=trans){
 }
 ```
 
-Step
+Por último, vamos a utilizar el filtro PCA para comprobar si todos los datos son relevantes. Si encontramos algún datos redundante , lo eliminaremos de nuestro conjunto de datos. Para saber si un dato es redundante, debemos comprobar si todos los atributos PC (PC1, PC2, ..., PCx) son 0 o muy cercanos a 0; si encontramos algún atributo PC que se aleje de 0, no podemos asegurar que el atributos sea redundante, y por lo tanto no lo podremos quitar.
+
+```{r}
+pcaTransformation = prcomp(trainTransformado[,-default.payment.next.month], center=F, scale=F)
+pcaTransformation$rotation
+```
+
+Según los resultados del filtro PCA, no hay ningún dato que sea redundate. Por lo tanto, no eliminaremos ninguno de los atributos del conjunto de datos.
+
+## Estudio de los parámetros e hiperparámetros.
+Vamos a realizar un estudio sobre los parámetros para saber cuáles de ellos son los más importantes. Con los más importantes crearemos los modelos lineales que vamos a ajustar.
+
+
 
 ```{r}
 modelo_step = glm(default.payment.next.month ~ .,family = gaussian, data=trainTransformado)
@@ -167,8 +179,4 @@ modelo_principal = step(modelo_step)
 
 ```
 
-
-```{r}
-muestra_regsubsets = regsubsets()
-```
 
