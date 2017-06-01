@@ -36,7 +36,6 @@ setwd("~/Documentos/Segundo_Cuatrimestre/AA/Proyecto")
 credit_card =  read.csv("default_of_credict_card_clients.csv"
                           , sep=",", header = TRUE, row.names =1)
 
-attach(credit_card)
 summary(credit_card)
 
 ```
@@ -52,7 +51,6 @@ credit_card.test = credit_card[-train,]
 
 Lo primero que queremos hacer es comprobar si hay datos pérdidos, y si es así; reemplazaremos el valor pérdido.
 ```{r}
-sum(which(is.na.data.frame(credit_card.train) == TRUE))
 anyNA(credit_card.train)
 ```
 Como  no tenemos ningún dato pérdido, no tendremos que reemplazar los valores. Si hubieramos tenido valores tenido, podríamos haber utilizado la función _knnImputation_ para reemplazar los valores pérdidos por los k vecinos más cercanos (normalmente k=3). También podríamos utilizar la media como sustituto del valor pérdido.
@@ -93,9 +91,17 @@ credit_card.train = credit_card.train[, -which(colnames(credit_card.train) == "M
 summary(credit_card.train)
 ```
 
+También vamos a cambiar el nombre de la columna _PAY0_ por _PAY1_.
+```{r}
+colnames(credit_card.train)[which(colnames(credit_card.train)=="PAY_0")]="PAY_1"
+summary(credit_card.train)
+```
+
+
+Por último.
 ```{r}
 # Por último, utilizamos la función preprocess.
-trans = preProcess(credit_card.train, c("BoxCox", "scale", "center") )
+trans = preProcess(credit_card.train, c("BoxCox") )
 trainTransformado = predict(trans, credit_card.train)
 summary(trainTransformado)
 
@@ -131,6 +137,8 @@ reemplazarCol = function(x){
   # Borramos la variable MARRIAGE.
   x = x[, -which(colnames(x) == "MARRIAGE")]
   
+  # Cambiamos el nombre de la variables PAY_0.
+  colnames(x)[which(colnames(x)=="PAY_0")]="PAY_1"
   x
 }
 preprocesar = function(x,pred=trans){
