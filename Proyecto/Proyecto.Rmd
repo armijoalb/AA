@@ -15,6 +15,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library("caret")
 library("leaps")
 library("e1071")
+set.seed(1)
 ```
 
 
@@ -166,7 +167,6 @@ pcaTransformation = prcomp(trainTransformado[,-default.payment.next.month], cent
 pcaTransformation$rotation
 ```
 
-<<<<<<< HEAD
 Según los resultados del filtro PCA, no hay ningún dato que sea redundate. Por lo tanto, no eliminaremos ninguno de los atributos del conjunto de datos.
 
 ## Estudio de los parámetros e hiperparámetros.
@@ -186,5 +186,3 @@ muestra_regsubsets = regsubsets(default.payment.next.month ~ ., data = trainTran
 summary((muestra_regsubsets))
 
 ```
-
-
