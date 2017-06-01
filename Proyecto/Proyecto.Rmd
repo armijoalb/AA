@@ -1,10 +1,10 @@
 ---
 title: "Trabajo3"
-author: 'Juan Alberto Martinez Lopez / Alberto Armijo Ru?z '
+author: 'Juan Alberto Martinez Lopez / Alberto Armijo Ruiz '
 date: "27 de mayo de 2017"
 output:
-  word_document: default
   pdf_document: default
+  word_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -14,10 +14,11 @@ knitr::opts_chunk$set(echo = TRUE)
 #Librerías utilizadas.
 library("caret")
 library("leaps")
+library("e1071")
 ```
 
 
-## 1. default of credit card clients Data Set (Clasificaci?n)
+## 1. default of credit card clients Data Set (Clasificación)
 
 La base de datos se centra en el caso de los pagos por defecto de los clientes en Taiwán y compara la precisión predictiva de la probabilidad de incumplimiento entre seis métodos de minería de datos. Desde la perspectiva de la gestión de riesgos, el resultado de la precisión predictiva de la probabilidad estimada de incumplimiento ser más valioso que el resultado binario de la clasificación - clientes creíbles o no creíbles. Con la probabilidad real de default como variable de respuesta (Y), y la probabilidad predictiva de default como variable independiente (X), el resultado de regresión lineal simple (Y = A + BX) muestra que el modelo de predicción producido por la red neuronal artificial tiene el mayor coeficiente de determinación. Su intercepción de regresión (A) es cercana a cero, y el coeficiente de regresión (B) a uno. Por lo tanto, entre las seis técnicas de minería de datos, la red neuronal artificial es la única que puede estimar con precisión la probabilidad real de incumplimiento. Dichas caracteristicas son:
 
@@ -53,7 +54,7 @@ Lo primero que queremos hacer es comprobar si hay datos perdidos, y si es así; 
 ```{r}
 anyNA(credit_card.train)
 ```
-Como  no tenemos ningún dato pérdido, no tendremos que reemplazar los valores. Si hubieramos tenido valores tenido, podríamos haber utilizado la función _knnImputation_ para reemplazar los valores perdidos por los k vecinos mÃ¡s cercanos (normalmente k=3). TambiÃ©n podrÃ�amos utilizar la media como sustituto del valor pÃ©rdido.
+Como  no tenemos ningún dato pérdido, no tendremos que reemplazar los valores. Si hubieramos tenido valores tenido, podríamos haber utilizado la función _knnImputation_ para reemplazar los valores perdidos por los k vecinos mÃ¡s cercanos (normalmente k=3). TambiÃ©n podrÃ?amos utilizar la media como sustituto del valor pÃ©rdido.
 
 Lo siguiente que vamos a hacer es modificar aquellas columnas que separan los datos en variables "clases" como por ejemplo la columna _EDUCATION_, que indica que tipo de estudios tiene cada persona. Por cada tipo en los que los separe, crearemos una nueva columna que indique con 0s y 1s la pertenencia a ese tipo. TambiÃ©n tenemos que realizar este proceso con la columna _MARRIAGE_
 
