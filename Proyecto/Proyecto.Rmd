@@ -19,9 +19,9 @@ library("leaps")
 
 ## 1. default of credit card clients Data Set (Clasificaci?n)
 
-La base de datos se centra en el caso de los pagos por defecto de los clientes en Taiw?n y compara la precisi?n predictiva de la probabilidad de incumplimiento entre seis m?todos de miner?a de datos. Desde la perspectiva de la gesti?n de riesgos, el resultado de la precisi?n predictiva de la probabilidad estimada de incumplimiento ser? m?s valioso que el resultado binario de la clasificaci?n - clientes cre?bles o no cre?bles. Con la probabilidad real de default como variable de respuesta (Y), y la probabilidad predictiva de default como variable independiente (X), el resultado de regresi?n lineal simple (Y = A + BX) muestra que el modelo de predicci?n producido por la red neuronal artificial tiene el mayor coeficiente de determinaci?n. Su intercepci?n de regresi?n (A) es cercana a cero, y el coeficiente de regresi?n (B) a uno. Por lo tanto, entre las seis t?cnicas de miner?a de datos, la red neuronal artificial es la ?nica que puede estimar con precisi?n la probabilidad real de incumplimiento. Dichas caracteristicas son:
+La base de datos se centra en el caso de los pagos por defecto de los clientes en Taiwán y compara la precisión predictiva de la probabilidad de incumplimiento entre seis métodos de minería de datos. Desde la perspectiva de la gestión de riesgos, el resultado de la precisión predictiva de la probabilidad estimada de incumplimiento ser más valioso que el resultado binario de la clasificación - clientes creíbles o no creíbles. Con la probabilidad real de default como variable de respuesta (Y), y la probabilidad predictiva de default como variable independiente (X), el resultado de regresión lineal simple (Y = A + BX) muestra que el modelo de predicción producido por la red neuronal artificial tiene el mayor coeficiente de determinación. Su intercepción de regresión (A) es cercana a cero, y el coeficiente de regresión (B) a uno. Por lo tanto, entre las seis técnicas de minería de datos, la red neuronal artificial es la única que puede estimar con precisión la probabilidad real de incumplimiento. Dichas caracteristicas son:
 
-SBP: Presi?n arterial
+SBP: Presión arterial
 Tobbaco: El tabaco acululado en kg.
 LDL: Lipoproteina de baja densidad.
 Adiposity: Acumulacion excesiva de grasa en el organismo.
@@ -49,13 +49,13 @@ credit_card.test = credit_card[-train,]
 
 ## 2. Preprocesado de los datos.
 
-Lo primero que queremos hacer es comprobar si hay datos pérdidos, y si es así; reemplazaremos el valor pérdido.
+Lo primero que queremos hacer es comprobar si hay datos perdidos, y si es así; reemplazaremos el valor perdido.
 ```{r}
 anyNA(credit_card.train)
 ```
-Como  no tenemos ningún dato pérdido, no tendremos que reemplazar los valores. Si hubieramos tenido valores tenido, podríamos haber utilizado la función _knnImputation_ para reemplazar los valores pérdidos por los k vecinos más cercanos (normalmente k=3). También podríamos utilizar la media como sustituto del valor pérdido.
+Como  no tenemos ningún dato pérdido, no tendremos que reemplazar los valores. Si hubieramos tenido valores tenido, podríamos haber utilizado la función _knnImputation_ para reemplazar los valores perdidos por los k vecinos mÃ¡s cercanos (normalmente k=3). TambiÃ©n podrÃ�amos utilizar la media como sustituto del valor pÃ©rdido.
 
-Lo siguiente que vamos a hacer es modificar aquellas columnas que separan los datos en variables "clases" como por ejemplo la columna _EDUCATION_, que indica que tipo de estudios tiene cada persona. Por cada tipo en los que los separe, crearemos una nueva columna que indique con 0s y 1s la pertenencia a ese tipo. También tenemos que realizar este proceso con la columna _MARRIAGE_
+Lo siguiente que vamos a hacer es modificar aquellas columnas que separan los datos en variables "clases" como por ejemplo la columna _EDUCATION_, que indica que tipo de estudios tiene cada persona. Por cada tipo en los que los separe, crearemos una nueva columna que indique con 0s y 1s la pertenencia a ese tipo. TambiÃ©n tenemos que realizar este proceso con la columna _MARRIAGE_
 
 ```{r}
 # Modificamos la columna 2, llamada sex, para dividir los datos en 0=mujer, 1=hombre.
@@ -63,7 +63,7 @@ credit_card.train$SEX = ifelse(credit_card.train$SEX == 2, 0, 1)
 summary(credit_card.train)
 ```
 ```{r}
-# También tenemos que modificar la columna EDUCATION, la dividiremos en cuatro columnas diferentes:
+# TambiÃ©n tenemos que modificar la columna EDUCATION, la dividiremos en cuatro columnas diferentes:
 # ed.other, ed.university, ed.high_school, ed.school
 ed.other = ifelse(credit_card.train$EDUCATION == 4, 1,0)
 ed.university = ifelse(credit_card.train$EDUCATION == 2, 1, 0)
@@ -78,7 +78,7 @@ summary(credit_card.train)
 ```
 
 ```{r}
-# También tenemos que modificar la columna mariage. Introduciremos tres nueva columnas: marriage.married, marriage.single, marriage.others.
+# TambiÃ©n tenemos que modificar la columna mariage. Introduciremos tres nueva columnas: marriage.married, marriage.single, marriage.others.
 marriage.married = ifelse(credit_card.train$MARRIAGE == 1, 1,0)
 marriage.single = ifelse(credit_card.train$MARRIAGE == 2, 1,0)
 marriage.others = ifelse(credit_card.train$MARRIAGE == 3, 1,0)
@@ -91,16 +91,16 @@ credit_card.train = credit_card.train[, -which(colnames(credit_card.train) == "M
 summary(credit_card.train)
 ```
 
-También vamos a cambiar el nombre de la columna _PAY0_ por _PAY1_.
+TambiÃ©n vamos a cambiar el nombre de la columna _PAY0_ por _PAY1_.
 ```{r}
 colnames(credit_card.train)[which(colnames(credit_card.train)=="PAY_0")]="PAY_1"
 summary(credit_card.train)
 ```
 
 
-Por último.
+Por Ãºltimo.
 ```{r}
-# Por último, utilizamos la función preprocess.
+# Por Ãºltimo, utilizamos la funciÃ³n preprocess.
 trans = preProcess(credit_card.train, c("BoxCox") )
 trainTransformado = predict(trans, credit_card.train)
 summary(trainTransformado)
@@ -109,9 +109,9 @@ summary(trainTransformado)
 
   
 ```{r}
-# Para hacer más sencillo hacer las transformaciones al conjunto de test, se crearán funciones para realizar todo lo anterior.
+# Para hacer mÃ¡s sencillo hacer las transformaciones al conjunto de test, se crearÃ¡n funciones para realizar todo lo anterior.
 
-# Función para comprobar si hay datos pérdidos y reemplazarlos.
+# FunciÃ³n para comprobar si hay datos pÃ©rdidos y reemplazarlos.
 reemplazarCol = function(x){
   # Columna SEX
   x$SEX = ifelse(x$SEX == 2, 0, 1)
