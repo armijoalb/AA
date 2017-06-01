@@ -20,18 +20,29 @@ library("e1071")
 
 ## 1. default of credit card clients Data Set (Clasificación)
 
-La base de datos se centra en el caso de los pagos por defecto de los clientes en Taiwán y compara la precisión predictiva de la probabilidad de incumplimiento entre seis métodos de minería de datos. Desde la perspectiva de la gestión de riesgos, el resultado de la precisión predictiva de la probabilidad estimada de incumplimiento ser más valioso que el resultado binario de la clasificación - clientes creíbles o no creíbles. Con la probabilidad real de default como variable de respuesta (Y), y la probabilidad predictiva de default como variable independiente (X), el resultado de regresión lineal simple (Y = A + BX) muestra que el modelo de predicción producido por la red neuronal artificial tiene el mayor coeficiente de determinación. Su intercepción de regresión (A) es cercana a cero, y el coeficiente de regresión (B) a uno. Por lo tanto, entre las seis técnicas de minería de datos, la red neuronal artificial es la única que puede estimar con precisión la probabilidad real de incumplimiento. Dichas caracteristicas son:
+La base de datos se centra en el caso de los pagos por defecto de los clientes en Taiwán y compara la precisión predictiva de la probabilidad de incumplimiento entre seis métodos de minería de datos. Desde la perspectiva de la gestión de riesgos, el resultado de la precisión predictiva de la probabilidad estimada de incumplimiento será más valioso que el resultado binario de la clasificación - clientes creíbles o no creíbles. Con la probabilidad real de default como variable de respuesta (Y), y la probabilidad predictiva de default como variable independiente (X), el resultado de regresión lineal simple (Y = A + BX) muestra que el modelo de predicción producido por la red neuronal artificial tiene el mayor coeficiente de determinación. Su intercepción de regresión (A) es cercana a cero, y el coeficiente de regresión (B) a uno. Por lo tanto, entre las seis técnicas de minería de datos, la red neuronal artificial es la única que puede estimar con precisión la probabilidad real de incumplimiento. Dichas caracteristicas son:
 
-SBP: Presión arterial
-Tobbaco: El tabaco acululado en kg.
-LDL: Lipoproteina de baja densidad.
-Adiposity: Acumulacion excesiva de grasa en el organismo.
-Famhist: Historia familiar sobre casos de enfermedades cardiacas.
-Typea: Personalidad tipo A.
-Obesity: Obesidad.
-Alcohol Consumo de alcohol actual.
+Limit_bat: Cantidad de credito bancario dado(en dolares), incluye el credito individual y de su familia.
+Sex: genero (0 = mujer, 1 = hombre).
+Education: Educación recivida en 4 variables:
+  Others: Otros estudios.
+  University: Estudios universitarios.
+  High school: Estudios preparatoria.
+  school: Estudios básicos.
+Marriage: Estado marital en 3 variables:
+  Married: Casado.
+  Single: soltero.
+  Others: otros.
 Age: Edad.
-Chd: Respuesta a la enfermedad coronaria (la variable que queremos aprender).
+Pay_1-6: 
+Historia del pago anterior. Seguimos los últimos registros de pagos mensuales (de abril a septiembre de 2005) de la siguiente manera: X6 = el estado de pago en septiembre de 2005; X7 = estado de reembolso en agosto de 2005; . . . X11 = el estado de pago en abril de 2005. La escala de medición para el estado de pago es: -1 = pagar debidamente; 1 = retraso de pago de un mes; 2 = retardo de pago por dos meses; . . Unesdoc.unesco.org unesdoc.unesco.org 8 = retardo de pago por ocho meses; 9 = retraso de pago por nueve meses y más.
+
+Bill_Amt1-6: 
+Monto del estado de cuenta (dólar NT). X12 = monto del estado de cuenta en septiembre de 2005; X13 = monto del estado de cuenta en agosto de 2005; . . . X17 = monto del estado de cuenta en abril de 2005.
+Pay_Amt1-6:
+Monto del pago anterior (dólar NT). X18 = cantidad pagada en septiembre de 2005; X19 = cantidad pagada en agosto de 2005; . . X23 = cantidad pagada en abril de 2005.
+default payment next month: Variable que aprendemos, basamos si lapersona pagará o no el siguiente mes.
+
 
 ```{r} 
 credit_card =  read.csv("default_of_credict_card_clients.csv"
@@ -146,5 +157,18 @@ preprocesar = function(x,pred=trans){
   transTest = predict(pred, x)
   transTest
 }
+```
+
+Step
+
+```{r}
+modelo_step = glm(chd ~ sbp + tobacco + ldl + adiposity + famhist + typea +obesity + alcohol +age,family = gaussian, data=south_africa_data, subset = train)
+modelo_principal = step(modelo_step)
+
+```
+
+
+```{r}
+muestra_regsubsets = regsubsets()
 ```
 
