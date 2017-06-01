@@ -166,6 +166,7 @@ pcaTransformation = prcomp(trainTransformado[,-default.payment.next.month], cent
 pcaTransformation$rotation
 ```
 
+<<<<<<< HEAD
 Según los resultados del filtro PCA, no hay ningún dato que sea redundate. Por lo tanto, no eliminaremos ninguno de los atributos del conjunto de datos.
 
 ## Estudio de los parámetros e hiperparámetros.
@@ -177,6 +178,13 @@ Vamos a realizar un estudio sobre los parámetros para saber cuáles de ellos so
 modelo_step = glm(default.payment.next.month ~ .,family = gaussian, data=trainTransformado)
 modelo_principal = step(modelo_step)
 
+=======
+Regsubset
+
+```{r}
+muestra_regsubsets = regsubsets(default.payment.next.month ~ ., data = trainTransformado, nvmax = 28, method = "exhaustive")
+summary((muestra_regsubsets))
+>>>>>>> 0a250079bfcc1aa141e98e4aa3450cc93d463579
 ```
 
 
