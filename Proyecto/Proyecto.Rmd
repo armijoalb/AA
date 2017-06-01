@@ -111,7 +111,7 @@ summary(credit_card.train)
 ```
 
 
-Por Ãºltimo.
+Por Último.
 ```{r}
 # Por Ãºltimo, utilizamos la funciÃ³n preprocess.
 trans = preProcess(credit_card.train, c("BoxCox") )
@@ -130,22 +130,22 @@ reemplazarCol = function(x){
   x$SEX = ifelse(x$SEX == 2, 0, 1)
   
   # Columna EDUCATION.
-  x.other = ifelse(x$EDUCATION == 4, 1,0)
-  x.university = ifelse(x$EDUCATION == 2, 1, 0)
-  x.high_school = ifelse(x$EDUCATION == 3 | x$EDUCATION == 2, 1, 0)
-  x.school = ifelse(x$EDUCATION == 1 | x$EDUCATION == 2 | x$EDUCATION == 3, 1, 0)
-  x = cbind(x,x.other, x.high_school, x.school, x.university)
+  ed.other = ifelse(x$EDUCATION == 4, 1,0)
+  ed.university = ifelse(x$EDUCATION == 2, 1, 0)
+  ed.high_school = ifelse(x$EDUCATION == 3 | x$EDUCATION == 2, 1, 0)
+  ed.school = ifelse(x$EDUCATION == 1 | x$EDUCATION == 2 | x$EDUCATION == 3, 1, 0)
+  x = cbind(x,ed.other, ed.high_school, ed.school, ed.university)
 
   # Borramos la columna EDUCATION.
   x = x[,-which(colnames(x) == "EDUCATION")]
   
   # Columna MARRIAGE.
-  x.married = ifelse(x$MARRIAGE == 1, 1,0)
-  x.single = ifelse(x$MARRIAGE == 2, 1,0)
-  x.others = ifelse(x$MARRIAGE == 3, 1,0)
+  marriage.married = ifelse(x$MARRIAGE == 1, 1,0)
+  marriage.single = ifelse(x$MARRIAGE == 2, 1,0)
+  marriage.others = ifelse(x$MARRIAGE == 3, 1,0)
   
   # Introducimos los datos.
-  x = cbind(x.train, x.married, x.single, x.others)
+  x = cbind(x, marriage.married, marriage.single, marriage.others)
   
   # Borramos la variable MARRIAGE.
   x = x[, -which(colnames(x) == "MARRIAGE")]
@@ -154,9 +154,16 @@ reemplazarCol = function(x){
   colnames(x)[which(colnames(x)=="PAY_0")]="PAY_1"
   x
 }
+
 preprocesar = function(x,pred=trans){
   transTest = predict(pred, x)
   transTest
+}
+
+prepareTest = function(x){
+  tr = reemplazarCol(x)
+  tr= preprocesar(x)
+  tr
 }
 ```
 
@@ -175,8 +182,8 @@ Vamos a realizar un estudio sobre los parámetros para saber cuáles de ellos so
 
 
 ```{r}
-modelo_step = glm(default.payment.next.month ~ .,family = gaussian, data=trainTransformado)
-modelo_principal = step(modelo_step)
+#modelo_step = glm(default.payment.next.month ~ .,family = gaussian, data=trainTransformado)
+#modelo_principal = step(modelo_step)
 
 ```
 Regsubset
@@ -184,5 +191,139 @@ Regsubset
 ```{r}
 muestra_regsubsets = regsubsets(default.payment.next.month ~ ., data = trainTransformado, nvmax = 28, method = "exhaustive")
 summary((muestra_regsubsets))
-
+reg.sumary = summary(muestra_regsubsets)
 ```
+
+```{r}
+par(mfrow=c(1,2))
+plot(reg.sumary$cp, xlab="number of variables", ylab="cp", type="l")
+which.min(reg.sumary$cp)
+plot(reg.sumary$bic, xlab="number of variables", ylab="BIC", type="l")
+which.min(reg.sumary$bic)
+par(mfrow=c(1,1) )
+```
+
+
+
+```{r}
+variablesSignificativasCredit = character()
+
+for(nombre in names(trainTransformado) ){
+  pred = trainTransformado[, nombre]
+  modelo = lm(trainTransformado$default.payment.next.month~pred)
+  p_valor = summary(modelo)$coefficients[,4][2]
+  
+  if(p_valor < 0.1 && p_valor > 0){
+    variablesSignificativasCredit = c(variablesSignificativasCredit, nombre)
+  }
+  
+}
+
+variablesSignificativasCredit
+```
+
+# Ajuste de modelos.
+
+Para hacer más sencillo el cálculo del error teniendo un modelo, crearemos funciones para calcular el error, para calcular el conjunto de datos precedidos, y otra que las englobe.
+
+
+```{r}
+# Función para calcular la solución dada una predicción.
+calculateSol = function(x){
+  prediction.model = rep(0,length(x))
+  prediction.model[x >= 0.5] = 1
+  
+  prediction.model
+}
+
+# Función para calcular el Error.
+calculateErrorClasification = function(calculated.solution, real.sol){
+  er = sum(calculated.solution != real.sol)/length(calculated.solution)
+  er
+}
+
+# Función que calcula el Error pasándole la predicción.
+calculateError = function(model.prediction, labels){
+  pred = calculateSol(model.prediction)
+  return(calculateErrorClasification(pred, labels))
+}
+```
+
+Transformamos los valores de test.
+```{r}
+testTransformado = reemplazarCol(credit_card.test)
+testTransformado = predict(trans, testTransformado)
+dim(trainTransformado)
+dim(testTransformado)
+summary(testTransformado)
+```
+
+
+```{r}
+m1 = glm(default.payment.next.month~LIMIT_BAL+SEX+PAY_3+PAY_4+PAY_5+PAY_6+BILL_AMT1+BILL_AMT2+BILL_AMT3+PAY_AMT1+PAY_AMT2+PAY_AMT3+PAY_AMT3+PAY_AMT4+PAY_AMT5+PAY_AMT6+ed.other+ed.high_school+ed.school+ed.university+marriage.married+marriage.single, data=trainTransformado, family="binomial")
+
+predtr.m1 = predict(m1, trainTransformado)
+Ein.m1 = calculateError(predtr.m1, trainTransformado$default.payment.next.month)
+Ein.m1
+
+pred.m1 = predict(m1, testTransformado)
+Eout.m1 = calculateError(pred.m1, testTransformado$default.payment.next.month)
+Eout.m1
+```
+
+```{r}
+m2 = lm(default.payment.next.month~LIMIT_BAL+SEX+PAY_3+PAY_4+PAY_5+PAY_6+BILL_AMT1+BILL_AMT2+BILL_AMT3+PAY_AMT1+PAY_AMT2+PAY_AMT3+PAY_AMT3+PAY_AMT4+PAY_AMT5+PAY_AMT6+ed.other+ed.high_school+ed.school+ed.university+marriage.married+marriage.single, data=trainTransformado)
+
+predtr.m2 = predict(m2, trainTransformado)
+Ein.m2 = calculateError(predtr.m2, trainTransformado$default.payment.next.month)
+Ein.m2
+
+pred.m2 = predict(m2, testTransformado)
+Eout.m2 = calculateError(pred.m2, testTransformado$default.payment.next.month)
+Eout.m2
+```
+
+```{r}
+m3 = glm(default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married+PAY_3+SEX+PAY_AMT2+ed.high_school+PAY_AMT4+marriage.single+marriage.others+BILL_AMT2,data=trainTransformado, family="binomial")
+predtr.m3 = predict(m3, trainTransformado)
+Ein.m3 = calculateError(predtr.m3, trainTransformado$default.payment.next.month)
+Ein.m3
+
+pred.m3 = predict(m3, testTransformado)
+Eout.m3 = calculateError(pred.m3, testTransformado$default.payment.next.month)
+Eout.m3
+```
+
+```{r}
+m4 = lm(default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married+PAY_3+SEX+PAY_AMT2+ed.high_school+PAY_AMT4+marriage.single+marriage.others+BILL_AMT2,data=trainTransformado)
+predtr.m4 = predict(m4, trainTransformado)
+Ein.m4 = calculateError(predtr.m4, trainTransformado$default.payment.next.month)
+Ein.m4
+
+pred.m4 = predict(m4, testTransformado)
+Eout.m4 = calculateError(pred.m4, testTransformado$default.payment.next.month)
+Eout.m4
+```
+
+```{r}
+m5 = lm(default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=trainTransformado)
+predtr.m5 = predict(m5, trainTransformado)
+Ein.m5 = calculateError(predtr.m5, trainTransformado$default.payment.next.month)
+Ein.m5
+
+pred.m5 = predict(m5, testTransformado)
+Eout.m5 = calculateError(pred.m5, testTransformado$default.payment.next.month)
+Eout.m5
+```
+
+```{r}
+m6= glm(default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=trainTransformado, family="binomial" )
+predtr.m6 = predict(m6, trainTransformado)
+Ein.m6 = calculateError(predtr.m6, trainTransformado$default.payment.next.month)
+Ein.m6
+
+pred.m6 = predict(m6, testTransformado)
+Eout.m6 = calculateError(pred.m6, testTransformado$default.payment.next.month)
+Eout.m6
+```
+
