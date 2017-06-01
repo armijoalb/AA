@@ -167,6 +167,7 @@ modelo_principal = step(modelo_step)
 
 ```
 
+Regsubset
 
 ```{r}
 muestra_regsubsets = regsubsets(default.payment.next.month ~ ., data = trainTransformado, nvmax = 28, method = "exhaustive")
