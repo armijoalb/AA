@@ -47,7 +47,7 @@ default payment next month: Variable que aprendemos, basamos si lapersona pagar√
 ```{r} 
 credit_card =  read.csv("default_of_credict_card_clients.csv"
                           , sep=",", header = TRUE, row.names =1)
-
+attach(credit_card)
 summary(credit_card)
 
 ```
@@ -162,7 +162,7 @@ preprocesar = function(x,pred=trans){
 Step
 
 ```{r}
-modelo_step = glm(chd ~ sbp + tobacco + ldl + adiposity + famhist + typea +obesity + alcohol +age,family = gaussian, data=south_africa_data, subset = train)
+modelo_step = glm(default.payment.next.month ~ .,family = gaussian, data=trainTransformado)
 modelo_principal = step(modelo_step)
 
 ```
