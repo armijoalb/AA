@@ -13,6 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 #Librerías utilizadas.
 library("caret")
+library("leaps")
 ```
 
 
@@ -32,7 +33,6 @@ Age: Edad.
 Chd: Respuesta a la enfermedad coronaria (la variable que queremos aprender).
 
 ```{r} 
-setwd("~/Documentos/Segundo_Cuatrimestre/AA/Proyecto")
 credit_card =  read.csv("default_of_credict_card_clients.csv"
                           , sep=",", header = TRUE, row.names =1)
 
