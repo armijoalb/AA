@@ -15,6 +15,9 @@ knitr::opts_chunk$set(echo = TRUE)
 library("caret")
 library("leaps")
 library("e1071")
+library("ROCR")
+library("fastAdaboost")
+library("pROC")
 set.seed(1)
 ```
 
@@ -296,5 +299,131 @@ Ein.m3
 pred.m3 = predict(m3, testTransformado)
 Eout.m3 = calculateError(pred.m3, testTransformado$default.payment.next.month)
 Eout.m3
+```
+
+Nuestro mejor modelo es el tercer modelo, ya que es el más simple de los 3 y obtiene resultados casi iguales que los anteriores. Calcularemos la curva ROC de este modelo, y también calcularemos el área de esta.
+
+```{r}
+linear.model = prediction(pred.m3, testTransformado$default.payment.next.month)
+perf = performance(linear.model, "tpr", "fpr")
+auc.linear = performance(linear.model, measure = "auc")
+print(auc.linear@y.values[[1]])
+plot(perf)
+```
+
+
+## Modelos Boosting.
+Para crear los modelos del boosting, utilizaremos la biblioteca fastAdaboost, que contiene la función adaboost la cuál implementa el algoritmo adaboost. Uno de los parámetros de este algoritmo indica el número de clasficadores que se van a utilizar para separar los datos de la muestra; provaremos varios números de clasificadores. Nos quedaremos con el clasificador que menor error fuera de la muestra cometa. También calcularemos su curva ROC, y calcularemos cuál es el área de esta.
+
+```{r}
+bt1 = real_adaboost(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=trainTransformado, nIter=10)
+pred.bt1 = predict(bt1, trainTransformado)
+Ein.bt1 = pred.bt1$error
+Ein.bt1
+
+predTs.bt1 = predict(bt1, testTransformado)
+Eout.bt1 = predTs.bt1$error
+Eout.bt1
+```
+
+```{r}
+bt2 = real_adaboost(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=trainTransformado, nIter=50)
+pred.bt2 = predict(bt2, trainTransformado)
+Ein.bt2 = pred.bt1$error
+Ein.bt2
+
+predTs.bt2 = predict(bt2, testTransformado)
+Eout.bt2 = predTs.bt2$error
+Eout.bt2
+```
+
+
+```{r}
+bt3 = real_adaboost(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=trainTransformado, nIter=5)
+pred.bt3 = predict(bt3, trainTransformado)
+Ein.bt3 = pred.bt3$error
+Ein.bt3
+
+predTs.bt3 = predict(bt3, testTransformado)
+Eout.bt3 = predTs.bt3$error
+Eout.bt3
+```
+
+```{r}
+bt4 = real_adaboost(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married+PAY_3+SEX+PAY_AMT2+ed.high_school+PAY_AMT4+marriage.single+marriage.others+BILL_AMT2,data=trainTransformado, nIter=10)
+pred.bt4 = predict(bt4, trainTransformado)
+Ein.bt4 = pred.bt4$error
+Ein.bt4
+
+predTs.bt4 = predict(bt4, testTransformado)
+Eout.bt4 = predTs.bt4$error
+Eout.bt4
+```
+
+```{r}
+bt5 = real_adaboost(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married+PAY_3+SEX+PAY_AMT2+ed.high_school+PAY_AMT4+marriage.single+marriage.others+BILL_AMT2,data=trainTransformado, nIter=50)
+pred.bt5 = predict(bt5, trainTransformado)
+Ein.bt5 = pred.bt5$error
+Ein.bt5
+
+predTs.bt5 = predict(bt5, testTransformado)
+Eout.bt5 = predTs.bt5$error
+Eout.bt5
+```
+
+
+```{r}
+bt6 = real_adaboost(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married+PAY_3+SEX+PAY_AMT2+ed.high_school+PAY_AMT4+marriage.single+marriage.others+BILL_AMT2,data=trainTransformado, nIter=5)
+pred.bt6 = predict(bt6, trainTransformado)
+Ein.bt6 = pred.bt6$error
+Ein.bt6
+
+predTs.bt6 = predict(bt6, testTransformado)
+Eout.bt6 = predTs.bt6$error
+Eout.bt6
+```
+
+Como se puede ver, los modelos aportados por la técnica de boosting están obteniendo unos resultados bastante pobres, además, estos nos indican que hay overfitting en todos los modelos. Esto puede ser por varias razones, como que los clasificadores débiles seán demasiado débiles o demasiado complejos; también puede darse si tenemos ruido dentro de la muestra de estudio. Para intentar reducir el error, vamos a transformar los datos normalizando, para intentar reducir el ruido lo máximo posible.
+
+Para ello, utilizaremos la función preProcess, está vez indicandole las transformaciones _BoxCox_, _scale_ y _center_.
+
+```{r}
+trans2 = preProcess(credit_card.train, c("BoxCox", "scale", "center") )
+trainTransformado2 = predict(trans2 , credit_card.train)
+
+# Para el test.
+testTransformado2 = reemplazarCol(credit_card.test)
+testTransformado2 = preprocesar(testTransformado2, pred=trans2)
+```
+
+Ahora probaremos el modelo de 9 carácterísticas, y comprobaremos si los resultados mejoran.
+
+```{r}
+bt7 = real_adaboost(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=trainTransformado2, nIter=50)
+pred.bt7 = predict(bt7, trainTransformado2)
+Ein.bt7 = pred.bt7$error
+Ein.bt7
+
+predTs.bt7 = predict(bt7, testTransformado2)
+Eout.bt7 = predTs.bt7$error
+Eout.bt7
+```
+
+Los resultados obtenidos son casi iguales que los obtenidos anteriormente, lo cuál nos indica que el overfitting no está provocado por ruido. Como modelo final, el cuál utilizaremos para compararlo con otros modelos, será el modelo bt3, el cúal es el más simple, utiliza 5 clasificadores y 9 variables para predecir.
+
+```{r}
+print(table(pred.bt3$class, trainTransformado$default.payment.next.month))
+```
+
+```{r}
+salida.boosting = vector(length = length(predTs.bt3$class))
+salida.boosting[cero] = 0
+salida.boosting[-cero] = 1
+boosting.model = roc(testTransformado$default.payment.next.month, salida.boosting, )
+auc.boosting = auc(boosting.model)
+
+auc.boosting
+plot(boosting.model)
+
 ```
 
