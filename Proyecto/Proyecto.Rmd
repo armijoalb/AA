@@ -10,6 +10,7 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
 ```{r}
 #Librerías utilizadas.
 library("caret")
@@ -17,7 +18,13 @@ library("leaps")
 library("e1071")
 library("ROCR")
 library("fastAdaboost")
+<<<<<<< HEAD
 library(randomForest)
+=======
+library("adabag")
+library("pROC")
+library("neuralnet")
+>>>>>>> 82b843f07344c0f241c18c248764997eac3cdaf5
 set.seed(1)
 ```
 
@@ -51,6 +58,7 @@ default payment next month: Variable que aprendemos, basamos si lapersona pagar�
 ```{r} 
 credit_card =  read.csv("default_of_credict_card_clients.csv"
                           , sep=",", header = TRUE, row.names =1)
+attach(credit_card)
 summary(credit_card)
 
 ```
@@ -313,7 +321,7 @@ plot(perf)
 
 
 ## Modelos Boosting.
-Para crear los modelos del boosting, utilizaremos la biblioteca fastAdaboost, que contiene la función adaboost la cuál implementa el algoritmo adaboost. Uno de los parámetros de este algoritmo indica el número de clasficadores que se van a utilizar para separar los datos de la muestra; provaremos varios números de clasificadores. Nos quedaremos con el clasificador que menor error fuera de la muestra cometa. También calcularemos su curva ROC, y calcularemos cuál es el área de esta.
+Para crear los modelos del boosting, utilizaremos la biblioteca fastAdaboost, que contiene la función adaboost la cuál implementa el algoritmo adaboost. Uno de los parámetros de este algoritmo indica el número de clasficadores que se van a utilizar para separar los datos de la muestra; probaremos varios números de clasificadores. Nos quedaremos con el clasificador que menor error fuera de la muestra cometa. También calcularemos su curva ROC, y calcularemos cuál es el área de esta.
 
 ```{r}
 bt1 = real_adaboost(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=trainTransformado, nIter=10)
@@ -427,3 +435,31 @@ print(auc.boosting@y.values[[1]])
 plot(perf.boost)
 ```
 
+## Modelos Redes Neuronales
+
+Para crear los modelos del Redes Neuronales, utilizaremos la biblioteca neuralnet, que contiene la función neuralnet la cuál implementa el algoritmo backpropagation. Uno de los parámetros de este algoritmo indica el número de capas ocultas  y los nodos que contiene en cada capa que se van a utilizar para separar los datos de la muestra; probaremos con distintas capas. Nos quedaremos con la red que menor error fuera de la muestra cometa. También calcularemos su curva ROC, y calcularemos cuál es el área de esta.
+
+```{r}
+# n <- names(trainTransformado)
+# f <- as.formula(paste("default.payment.next.month  ~", paste(n[!n %in% "default.payment.next.month"], collapse = " + " )))
+nn1 = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=trainTransformado)
+
+plot(nn1)
+
+n <- c("PAY_1", "PAY_2", "BILL_AMT1", "LIMIT_BAL","AGE","ed.school","PAY_AMT1","PAY_5","marriage.married")
+ 
+pred.nn1 = compute(nn1,testTransformado[names(testTransformado) %in% n])
+
+pred.nn1_ = pred.nn1$net.result*(max(trainTransformado$default.payment.next.month)-min(trainTransformado$default.payment.next.month))+min(trainTransformado$default.payment.next.month)
+
+test.r = (testTransformado$default.payment.next.month)*(max(trainTransformado$default.payment.next.month)-min(trainTransformado$default.payment.next.month))+min(trainTransformado$default.payment.next.month)
+
+summary((test.r - pred.nn1_)^2)
+# pred.nn1 = predict(nn1, trainTransformado)
+# Ein.nn1 = pred.nn1$error
+# Ein.nn1
+# 
+# predTs.nn1 = predict(nn1, testTransformado)
+# Eout.nn1 = predTs.nn1$error
+# Eout.nn1
+```
