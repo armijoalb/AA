@@ -19,8 +19,11 @@ library("e1071")
 library("ROCR")
 library("fastAdaboost")
 library("randomForest")
+<<<<<<< HEAD
 library("adabag")
 library("pROC")
+=======
+>>>>>>> 646c966c11405a54b90fd8c2981971a0841cc10f
 library("neuralnet")
 set.seed(1)
 ```
@@ -349,7 +352,7 @@ pred.bt3 = predict(bt3, trainTransformado)
 Ein.bt3 = pred.bt3$error
 Ein.bt3
 
-predTs.bt3 = predict(bt3, testTransformado)
+predTs.bt3 = predict(bt3, testTransformado, type="response")
 Eout.bt3 = predTs.bt3$error
 Eout.bt3
 ```
@@ -425,7 +428,7 @@ salida.boosting = vector(length = length(predTs.bt3$class))
 cero = grep("0", predTs.bt3$class)
 salida.boosting[cero] = 0
 salida.boosting[-cero] = 1
-boosting.model = prediction(salida.boosting, testTransformado$default.payment.next.month)
+boosting.model = ROCR::prediction(salida.boosting, testTransformado$default.payment.next.month)
 perf.boost = performance(boosting.model, "tpr", "fpr")
 auc.boosting = performance(boosting.model, measure = "auc")
 print(auc.boosting@y.values[[1]])
@@ -439,6 +442,9 @@ Para crear los modelos del Redes Neuronales, utilizaremos la biblioteca neuralne
 ```{r}
 # n <- names(trainTransformado)
 # f <- as.formula(paste("default.payment.next.month  ~", paste(n[!n %in% "default.payment.next.month"], collapse = " + " )))
+<<<<<<< HEAD
+nn1 = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=trainTransformado, hidden=2)
+=======
 
 maxs <- apply(trainTransformado, 2, max)
 mins <- apply(trainTransformado, 2, min)
@@ -449,7 +455,12 @@ test_ = scaled[-train,]
 
 
 
+<<<<<<< HEAD
 nn1 = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=train_)
+=======
+nn1 = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=train_, hidden = 2)
+>>>>>>> b50bc66f6a91c2e45aa61a62e29ac535ad49a03c
+>>>>>>> 646c966c11405a54b90fd8c2981971a0841cc10f
 
 plot(nn1)
 
@@ -461,7 +472,7 @@ pred.nn1_ = pred.nn1$net.result*(max(trainTransformado$default.payment.next.mont
 
 test.r = (testTransformado$default.payment.next.month)*(max(trainTransformado$default.payment.next.month)-min(trainTransformado$default.payment.next.month))+min(trainTransformado$default.payment.next.month)
 
-summary((test.r - pred.nn1_)^2)
+
 # pred.nn1 = predict(nn1, trainTransformado)
 # Ein.nn1 = pred.nn1$error
 # Ein.nn1
