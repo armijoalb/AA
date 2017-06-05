@@ -18,9 +18,13 @@ library("leaps")
 library("e1071")
 library("ROCR")
 library("fastAdaboost")
+<<<<<<< HEAD
+library(randomForest)
+=======
 library("adabag")
 library("pROC")
 library("neuralnet")
+>>>>>>> 82b843f07344c0f241c18c248764997eac3cdaf5
 set.seed(1)
 ```
 
