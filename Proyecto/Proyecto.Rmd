@@ -18,6 +18,7 @@ library("leaps")
 library("e1071")
 library("ROCR")
 library("fastAdaboost")
+library("adabag")
 library("pROC")
 library("neuralnet")
 set.seed(1)
@@ -420,14 +421,14 @@ print(table(pred.bt3$class, trainTransformado$default.payment.next.month))
 
 ```{r}
 salida.boosting = vector(length = length(predTs.bt3$class))
+cero = grep("0", predTs.bt3$class)
 salida.boosting[cero] = 0
 salida.boosting[-cero] = 1
-boosting.model = roc(testTransformado$default.payment.next.month, salida.boosting, )
-auc.boosting = auc(boosting.model)
-
-auc.boosting
-plot(boosting.model)
-
+boosting.model = prediction(salida.boosting, testTransformado$default.payment.next.month)
+perf.boost = performance(boosting.model, "tpr", "fpr")
+auc.boosting = performance(boosting.model, measure = "auc")
+print(auc.boosting@y.values[[1]])
+plot(perf.boost)
 ```
 
 ## Modelos Redes Neuronales
