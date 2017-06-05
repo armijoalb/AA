@@ -18,13 +18,10 @@ library("leaps")
 library("e1071")
 library("ROCR")
 library("fastAdaboost")
-<<<<<<< HEAD
-library(randomForest)
-=======
+library("randomForest")
 library("adabag")
 library("pROC")
 library("neuralnet")
->>>>>>> 82b843f07344c0f241c18c248764997eac3cdaf5
 set.seed(1)
 ```
 
@@ -312,7 +309,7 @@ Eout.m3
 Nuestro mejor modelo es el tercer modelo, ya que es el más simple de los 3 y obtiene resultados casi iguales que los anteriores. Calcularemos la curva ROC de este modelo, y también calcularemos el área de esta.
 
 ```{r}
-linear.model = prediction(pred.m3, testTransformado$default.payment.next.month)
+linear.model = ROCR::prediction(pred.m3, testTransformado$default.payment.next.month)
 perf = performance(linear.model, "tpr", "fpr")
 auc.linear = performance(linear.model, measure = "auc")
 print(auc.linear@y.values[[1]])
@@ -452,7 +449,7 @@ test_ = scaled[-train,]
 
 
 
-nn1 = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=train_, hidden = 2)
+nn1 = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=train_)
 
 plot(nn1)
 
