@@ -17,8 +17,7 @@ library("leaps")
 library("e1071")
 library("ROCR")
 library("fastAdaboost")
-library("adabag")
-library("pROC")
+library(randomForest)
 set.seed(1)
 ```
 
