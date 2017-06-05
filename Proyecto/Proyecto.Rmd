@@ -438,7 +438,17 @@ Para crear los modelos del Redes Neuronales, utilizaremos la biblioteca neuralne
 ```{r}
 # n <- names(trainTransformado)
 # f <- as.formula(paste("default.payment.next.month  ~", paste(n[!n %in% "default.payment.next.month"], collapse = " + " )))
-nn1 = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=trainTransformado)
+
+maxs <- apply(trainTransformado, 2, max)
+mins <- apply(trainTransformado, 2, min)
+scaled <- as.data.frame(scale(trainTransformado, center = mins, scale = maxs - mins))
+
+train_ = scaled[train,]
+test_ = scaled[-train,]
+
+
+
+nn1 = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=train_, hidden = 2)
 
 plot(nn1)
 
