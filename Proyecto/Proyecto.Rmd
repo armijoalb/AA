@@ -19,11 +19,8 @@ library("e1071")
 library("ROCR")
 library("fastAdaboost")
 library("randomForest")
-<<<<<<< HEAD
 library("adabag")
 library("pROC")
-=======
->>>>>>> 646c966c11405a54b90fd8c2981971a0841cc10f
 library("neuralnet")
 set.seed(1)
 ```
@@ -442,44 +439,50 @@ Para crear los modelos del Redes Neuronales, utilizaremos la biblioteca neuralne
 ```{r}
 # n <- names(trainTransformado)
 # f <- as.formula(paste("default.payment.next.month  ~", paste(n[!n %in% "default.payment.next.month"], collapse = " + " )))
-nn1 = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=trainTransformado, hidden=2)
-
+#nn1 = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=trainTransformado, hidden=2)
 
 maxs <- apply(trainTransformado, 2, max)
 mins <- apply(trainTransformado, 2, min)
-scaled <- as.data.frame(scale(trainTransformado, center = mins, scale = maxs - mins))
+train_ <- as.data.frame(scale(trainTransformado, center = mins, scale = maxs - mins))
 
-train_ = scaled[train,]
-test_ = scaled[-train,]
+maxs <- apply(testTransformado, 2, max)
+mins <- apply(testTransformado, 2, min)
+test_ <- as.data.frame(scale(testTransformado, center = mins, scale = maxs - mins))
 
 
 
-<<<<<<< HEAD
-nn1 = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=train_)
-=======
+
+#nn1 = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=train_)
 nn1 = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=train_, hidden = 2)
-<<<<<<< HEAD
-=======
->>>>>>> b50bc66f6a91c2e45aa61a62e29ac535ad49a03c
->>>>>>> 646c966c11405a54b90fd8c2981971a0841cc10f
->>>>>>> bee57301dbff08fd27815f4bd18841c5789a6841
-
-plot(nn1)
 
 n <- c("PAY_1", "PAY_2", "BILL_AMT1", "LIMIT_BAL","AGE","ed.school","PAY_AMT1","PAY_5","marriage.married")
- 
-pred.nn1 = compute(nn1,testTransformado[names(testTransformado) %in% n])
 
-pred.nn1_ = pred.nn1$net.result*(max(trainTransformado$default.payment.next.month)-min(trainTransformado$default.payment.next.month))+min(trainTransformado$default.payment.next.month)
-
-test.r = (testTransformado$default.payment.next.month)*(max(trainTransformado$default.payment.next.month)-min(trainTransformado$default.payment.next.month))+min(trainTransformado$default.payment.next.month)
+pred.nn1 = compute(nn1, train_[names(train_) %in% n])
+#plot(nn1)
 
 
-# pred.nn1 = predict(nn1, trainTransformado)
-# Ein.nn1 = pred.nn1$error
-# Ein.nn1
-# 
-# predTs.nn1 = predict(nn1, testTransformado)
-# Eout.nn1 = predTs.nn1$error
-# Eout.nn1
+#pred.nn1 = compute(nn1,testTransformado[names(testTransformado) %in% n])
+
+pred.nn1_ = pred.nn1$net.result*(max(train_$default.payment.next.month)-min(train_$default.payment.next.month))+min(train_$default.payment.next.month)
+
+train.r = (train_$default.payment.next.month)*(max(train_$default.payment.next.month)-min(train_$default.payment.next.month))+min(train_$default.payment.next.month)
+
+calculateError(pred.nn1_,train.r)
+
+
+
+nn1.test = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=test_, hidden = 2)
+
+pred.nn1test = compute(nn1.test, test_[names(test_) %in% n])
+
+pred.nn1_test = pred.nn1$net.result*(max(train_$default.payment.next.month)-min(train_$default.payment.next.month))+min(train_$default.payment.next.month)
+
+test.r = (test_$default.payment.next.month)*(max(test_$default.payment.next.month)-min(test_$default.payment.next.month))+min(test_$default.payment.next.month)
+
+
+calculateError(pred.nn1_test,test.r)
+
+
+
+
 ```
