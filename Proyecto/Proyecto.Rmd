@@ -52,6 +52,8 @@ Nuestro objetivo será intentar conseguir una predicción lo mejor posibles, int
 
 ## Lectura de la base de datos.
 
+Para la lectura de la base de datos, hemos tenido que trasformar el archivo a .csv y además borrar la primera fila por problemas de lectura.
+
 ```{r} 
 credit_card =  read.csv("default_of_credict_card_clients.csv"
                           , sep=",", header = TRUE, row.names =1)
