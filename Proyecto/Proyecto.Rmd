@@ -453,12 +453,9 @@ mins <- apply(testTransformado, 2, min)
 test_ <- as.data.frame(scale(testTransformado, center = mins, scale = maxs - mins))
 
 
-
-<<<<<<< HEAD
 nn1 = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=train_)
 nn1 = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=train_, hidden = 2)
-=======
->>>>>>> 5e9d41bb87c902af77f908a6b2f8fa9c6628a4e4
+
 
 #nn1 = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=train_)
 nn1 = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=train_, hidden = 3)
@@ -576,5 +573,16 @@ perf = performance(svm.model, "tpr", "fpr")
 auc.svm = performance(svm.model, measure = "auc")
 print(auc.svm@y.values[[1]])
 plot(perf)
+```
+
+## Modelos Random forest 
+
+Para crear los modelos del Random Forest, utilizaremos la biblioteca randomForest, que contiene la función randomForest 
+
+```{r}
+
+rf = randomForest(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married, data = trainTransformado, y = trainTransformado$default.payment.next.month, ntree = 1000, maxnodes=200)
+rf
+
 ```
 
