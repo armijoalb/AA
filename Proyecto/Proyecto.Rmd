@@ -534,6 +534,30 @@ Eout.svm5
 
 En este caso, el mejor modelo es el tercero, ya que es el que tiene un error fuera de la muestra menor. Ahora calcularemos su curva ROC.
 
+### Comprobación parámetros cost.
+```{r}
+costs = c(1, 0.1, 10, 0.01)
+best.err = 1
+best.cost = 1
+for(i in costs){
+  my.model = e1071::svm(default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married, data=trainTransformado, type="C", cost=i)
+  model.predition = predict(my.model, testTransformado)
+  out.err = mean( model.predition != testTransformado$default.payment.next.month )
+  print("Mejor error: ")
+  print(best.err)
+  print("Coste actual: ")
+  print(out.err)
+  if(out.err < best.err){
+    best.err = out.err
+    best.cost = i
+  }
+}
+
+print("Mejor Coste: ")
+print(best.cost)
+```
+
+
 ```{r}
 s.svm = attr(predTs.svm3, "decision.values")
 svm.model = ROCR::prediction(s.svm, testTransformado$default.payment.next.month)
