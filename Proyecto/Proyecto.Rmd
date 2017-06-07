@@ -406,58 +406,103 @@ plot(perf.boost)
 
 ## Modelos Redes Neuronales
 
-Para crear los modelos del Redes Neuronales, utilizaremos la biblioteca neuralnet, que contiene la función neuralnet la cuál implementa el algoritmo backpropagation. Uno de los parámetros de este algoritmo indica el número de capas ocultas  y los nodos que contiene en cada capa que se van a utilizar para separar los datos de la muestra; probaremos con distintas capas. Nos quedaremos con la red que menor error fuera de la muestra cometa. También calcularemos su curva ROC, y calcularemos cuál es el área de esta.
+Para crear los modelos del Redes Neuronales, utilizaremos la biblioteca neuralnet, que contiene la función neuralnet la cuál implementa el algoritmo backpropagation. Los parametros utilizados en este algoritmo son: hidden = indica el número de capas ocultas  y los nodos que contiene en cada capa que se van a utilizar para separar los datos de la muestra; probaremos con distintas capas; stepmax = fija el número máximo de pasos para el entrenamiento de las redes neuronales; threshold = es el umbral que limita el valor de las derivadas parciales de la función de error usandolo como criterio de parada. Nos quedaremos con la red que menor error fuera de la muestra cometa. También calcularemos su curva ROC, y calcularemos cuál es el área de esta.
 
 ```{r}
-# n <- names(trainTransformado)
-# f <- as.formula(paste("default.payment.next.month  ~", paste(n[!n %in% "default.payment.next.month"], collapse = " + " )))
-#nn1 = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=trainTransformado, hidden=2)
-
-trainprueba = sample(nrow(trainTransformado), round(nrow(trainTransformado)*(2/21)) )
-
-train.nn1 = trainTransformado[trainprueba,]
-
-nn1 = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=train.nn1,hidden = c(5,3,2), threshold = 0.1, stepmax = 1e+06)
+nn1 = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=trainTransformado,hidden = c(5,3,2), threshold = 0.8, stepmax = 1e+06)
 
 plot(nn1)
 
-# nn1 = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=train_, hidden = 2)
 
-#nn1 = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=train_)
-# nn1 = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=train_, hidden = 3)
+n <- c("PAY_1", "PAY_2", "BILL_AMT1", "LIMIT_BAL","AGE","ed.school","PAY_AMT1","PAY_5","marriage.married")
 
-# n <- c("PAY_1", "PAY_2", "BILL_AMT1", "LIMIT_BAL","AGE","ed.school","PAY_AMT1","PAY_5","marriage.married")
-# 
-# pred.nn1 = compute(nn1, train_[names(train_) %in% n])
-# #plot(nn1)
-# 
-# 
-# #pred.nn1 = compute(nn1,testTransformado[names(testTransformado) %in% n])
-# 
-# pred.nn1_ = pred.nn1$net.result*(max(train_$default.payment.next.month)-min(train_$default.payment.next.month))+min(train_$default.payment.next.month)
-# 
-# train.r = (train_$default.payment.next.month)*(max(train_$default.payment.next.month)-min(train_$default.payment.next.month))+min(train_$default.payment.next.month)
-# 
-# calculateError(pred.nn1_,train.r)
-# 
-# 
-# 
-# nn1.test = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=test_, hidden = 3)
-# 
-# pred.nn1test = compute(nn1.test, test_[names(test_) %in% n])
-# 
-# pred.nn1_test = pred.nn1$net.result*(max(train_$default.payment.next.month)-min(train_$default.payment.next.month))+min(train_$default.payment.next.month)
-# 
-# test.r = (test_$default.payment.next.month)*(max(test_$default.payment.next.month)-min(test_$default.payment.next.month))+min(test_$default.payment.next.month)
-# 
-# 
-# calculateError(pred.nn1_test,test.r)
+pred.nn1 = compute(nn1, trainTransformado[names(trainTransformado) %in% n])
+
+pred.nn1_ = pred.nn1$net.result*(max(pred.nn1$net.result)-min(pred.nn1$net.result))+min(pred.nn1$net.result)
+
+calculateError(pred.nn1_,trainTransformado$default.payment.next.month)
+
+pred.nn1Ts = compute(nn1, testTransformado[names(testTransformado) %in% n])
+
+pred.nn1_test = pred.nn1Ts$net.result*(max(pred.nn1Ts$net.result)-min(pred.nn1Ts$net.result))+min(pred.nn1Ts$net.result)
+
+
+calculateError(pred.nn1_test,testTransformado$default.payment.next.month)
 
 
 
 
 ```
+```{r}
+nn2 = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=trainTransformado,hidden = c(5,3), threshold = 0.5, stepmax = 1e+06)
 
+plot(nn2)
+
+pred.nn2 = compute(nn2, trainTransformado[names(trainTransformado) %in% n])
+
+pred.nn2_ = pred.nn2$net.result*(max(pred.nn2$net.result)-min(pred.nn2$net.result))+min(pred.nn2$net.result)
+
+calculateError(pred.nn2_,trainTransformado$default.payment.next.month)
+
+pred.nn2Ts = compute(nn2, testTransformado[names(testTransformado) %in% n])
+
+pred.nn2_test = pred.nn2Ts$net.result*(max(pred.nn2Ts$net.result)-min(pred.nn2Ts$net.result))+min(pred.nn2Ts$net.result)
+
+
+calculateError(pred.nn2_test,testTransformado$default.payment.next.month)
+```
+
+```{r}
+nn3 = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=trainTransformado,hidden = 5, threshold = 0.5, stepmax = 1e+06)
+
+plot(nn3)
+
+pred.nn3 = compute(nn3, trainTransformado[names(trainTransformado) %in% n])
+
+pred.nn3_ = pred.nn3$net.result*(max(pred.nn3$net.result)-min(pred.nn3$net.result))+min(pred.nn3$net.result)
+
+calculateError(pred.nn3_,trainTransformado$default.payment.next.month)
+
+pred.nn3Ts = compute(nn3, testTransformado[names(testTransformado) %in% n])
+
+pred.nn3_test = pred.nn3Ts$net.result*(max(pred.nn3Ts$net.result)-min(pred.nn3Ts$net.result))+min(pred.nn3Ts$net.result)
+
+
+calculateError(pred.nn3_test,testTransformado$default.payment.next.month)
+```
+
+```{r}
+nn4 = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=trainTransformado,hidden = c(3,2), threshold = 0.4, stepmax = 1e+06)
+plot(nn4)
+
+pred.nn4 = compute(nn4, trainTransformado[names(trainTransformado) %in% n])
+
+pred.nn4_ = pred.nn4$net.result*(max(pred.nn4$net.result)-min(pred.nn4$net.result))+min(pred.nn4$net.result)
+
+calculateError(pred.nn4_,trainTransformado$default.payment.next.month)
+
+pred.nn4Ts = compute(nn4, testTransformado[names(testTransformado) %in% n])
+
+pred.nn4_test = pred.nn4Ts$net.result*(max(pred.nn4Ts$net.result)-min(pred.nn4Ts$net.result))+min(pred.nn4Ts$net.result)
+
+
+calculateError(pred.nn4_test,testTransformado$default.payment.next.month)
+```
+
+Podemos observar que los errores son casi iguales y se diferencian muy poco. Esto es debido a que por la necesidad de eficiencia en tiempo hemos aunmentado mucho el valor de la variable threshold, cuyo valor mejoraría bastante el error con un [0,1,0.01], lo que creemos que repercute en el error que comete. Dado que las redes neuronales necesitan mas tiempo de  entrenamiento que el que les hemos podido proporcionar. Por último creemos que los errores son muy parecidos entre los modelos puede ser debido, además de que el umbral threshold es muy alto, las capas ocultas son muy parecidas.
+
+En este caso, el mejor modelo es el tercero, ya que es el que tiene una cantidad muy pequeña menos de error y consume menos tiempo de ejecución. Ahora calcularemos su curva ROC.
+
+```{r}
+probsnn = compute(nn3, testTransformado[names(testTransformado) %in% n])
+probsnn.pred = probsnn$net.result
+nn.model = ROCR::prediction(probsnn.pred, testTransformado$default.payment.next.month)
+perfnn = performance(nn.model, "tpr", "fpr")
+auc.nn = performance(nn.model, measure = "auc")
+print(auc.nn@y.values[[1]])
+plot(perfnn)
+
+```
 
 ## Modelos con clasificador SVM.
 Para utilizar el clasificador SVM, utilizaremos el paquete _e1071_, dentro de este se encuentra la función svm, esta por defecto utiliza un kernel radial. La fórmula que utilizaremos será la misma que las anteriormente utilizadas. Probaremos con diferentes valores para este argumento y nos quedaremos con el mejor de ellos.
