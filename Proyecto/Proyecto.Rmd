@@ -543,3 +543,58 @@ print(auc.svm@y.values[[1]])
 plot(perf)
 ```
 
+## Modelos con randomForest
+
+```{r}
+n <- c("PAY_1", "PAY_2", "BILL_AMT1", "LIMIT_BAL","AGE","ed.school","PAY_AMT1","PAY_5","marriage.married")
+rf = randomForest::randomForest(x=trainTransformado[, names(trainTransformado)%in%n], y=as.factor(trainTransformado$default.payment.next.month), data=trainTransformado, ntree=1000, maxnodes = 400)
+
+pred.rf1 = predict(rf, trainTransformado)
+Ein.rf1 = mean( pred.rf1 != trainTransformado$default.payment.next.month)
+Ein.rf1
+
+predTs.rf1 = predict(rf, testTransformado)
+Eout.rf1 = mean( predTs.rf1 != testTransformado$default.payment.next.month)
+Eout.rf1
+
+```
+
+```{r}
+rf2 = randomForest::randomForest(x=trainTransformado[, names(trainTransformado)%in%n], y=as.factor(trainTransformado$default.payment.next.month), data=trainTransformado, ntree=1500, maxnodes = 400)
+
+pred.rf2 = predict(rf2, trainTransformado)
+Ein.rf2 = mean( pred.rf2 != trainTransformado$default.payment.next.month)
+Ein.rf2
+
+predTs.rf2 = predict(rf2, testTransformado)
+Eout.rf2 = mean( predTs.rf2 != testTransformado$default.payment.next.month)
+Eout.rf2
+
+```
+
+```{r}
+rf3 = randomForest::randomForest(x=trainTransformado[, names(trainTransformado)%in%n], y=as.factor(trainTransformado$default.payment.next.month), data=trainTransformado, ntree=2000, maxnodes = 400)
+
+pred.rf3 = predict(rf3, trainTransformado)
+Ein.rf3 = mean( pred.rf3 != trainTransformado$default.payment.next.month)
+Ein.rf3
+
+predTs.rf3 = predict(rf3, testTransformado)
+Eout.rf3 = mean( predTs.rf3 != testTransformado$default.payment.next.month)
+Eout.rf3
+
+```
+
+Ahora calcularemos la curva ROC.Tomaremos como mejor modelo el primero, que es el que menos árboles tiene que crear.
+
+```{r}
+probs = predict(rf, testTransformado, type="prob")
+probs.pred = probs[,2]
+rf.model = ROCR::prediction(probs.pred, testTransformado$default.payment.next.month)
+perf = performance(rf.model, "tpr", "fpr")
+auc.rf = performance(rf.model, measure = "auc")
+print(auc.rf@y.values[[1]])
+plot(perf)
+
+```
+
