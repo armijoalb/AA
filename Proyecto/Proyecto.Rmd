@@ -514,6 +514,7 @@ plot(perf)
 ```
 
 ## Modelos con randomForest
+Para los modelos de Random Forest, utilizaremos la función randomForest. Utilizaremos diferentes valores para el número de árboles que usa este método; el número de nodos será siempre el mismo, 400. Una vez hayamos evaluado todos los modelos, elegiremos el que menor error fuera de la muestra cometa y calcularemos la curva ROC de este.
 
 ```{r}
 n <- c("PAY_1", "PAY_2", "BILL_AMT1", "LIMIT_BAL","AGE","ed.school","PAY_AMT1","PAY_5","marriage.married")
@@ -555,7 +556,7 @@ Eout.rf3
 
 ```
 
-Ahora calcularemos la curva ROC.Tomaremos como mejor modelo el primero, que es el que menos árboles tiene que crear.
+El primer modelo es el mejor de los 3, ya que comete un error muy parecido al resto de los modelos utilizando menos árboles para ello. Ahora calcularemos la curva ROC y su área debajo de la curva.
 
 ```{r}
 probs = predict(rf, testTransformado, type="prob")
@@ -569,3 +570,19 @@ plot(perf)
 
 ```
 
+## Conclusiones.
+
+Los resultados obtenidos por los clasificadores son los siguientes:
+
+: Área debajo de la curva ROC
+| Clasificador     | Área |
+|------------------|------|
+| Lineal           |0.7182|
+| Boosting         |0.6797|
+| SVM              |0.7062|
+| Redes Neuronales |0.5492|
+| Random Forest    |0.7523|
+
+Como podemos ver, el clasificador que mejores resultados obtiene es el Random Forest, el siguiente mejor clasificador es el lineal. Por lo tanto el mejor modelo posible es el que utiliza Random Forest, pero el modelo lineal también obtiene bastante buenos resultados, por lo también podríamos considerar utilizar este modelo ya que es más sencillo.
+
+Además, creemos que un modelo de redes neuronales con los parámetros adecuados, y con la el tiempo suficiente para entrenarlas; podría obtener unos resultados parecidos a los que se obtienen con el resto de los modelos.
