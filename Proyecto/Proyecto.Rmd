@@ -417,9 +417,10 @@ trainprueba = sample(nrow(trainTransformado), round(nrow(trainTransformado)*(2/2
 
 train.nn1 = trainTransformado[trainprueba,]
 
-nn1 = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=train.nn1,hidden = 5, threshold = 0.01, stepmax = 1e+06)
+nn1 = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=train.nn1,hidden = c(5,3,2), threshold = 0.1, stepmax = 1e+06)
 
 plot(nn1)
+
 # nn1 = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=train_, hidden = 2)
 
 #nn1 = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=train_)
