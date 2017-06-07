@@ -453,7 +453,7 @@ test_ <- as.data.frame(scale(testTransformado, center = mins, scale = maxs - min
 
 
 #nn1 = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=train_)
-nn1 = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=train_, hidden = 2)
+nn1 = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=train_, hidden = 3)
 
 n <- c("PAY_1", "PAY_2", "BILL_AMT1", "LIMIT_BAL","AGE","ed.school","PAY_AMT1","PAY_5","marriage.married")
 
@@ -471,7 +471,7 @@ calculateError(pred.nn1_,train.r)
 
 
 
-nn1.test = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=test_, hidden = 2)
+nn1.test = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=test_, hidden = 3)
 
 pred.nn1test = compute(nn1.test, test_[names(test_) %in% n])
 
