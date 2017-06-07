@@ -413,47 +413,44 @@ Para crear los modelos del Redes Neuronales, utilizaremos la biblioteca neuralne
 # f <- as.formula(paste("default.payment.next.month  ~", paste(n[!n %in% "default.payment.next.month"], collapse = " + " )))
 #nn1 = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=trainTransformado, hidden=2)
 
-maxs <- apply(trainTransformado, 2, max)
-mins <- apply(trainTransformado, 2, min)
-train_ <- as.data.frame(scale(trainTransformado, center = mins, scale = maxs - mins))
+trainprueba = sample(nrow(trainTransformado), round(nrow(trainTransformado)*(2/21)) )
 
-maxs <- apply(testTransformado, 2, max)
-mins <- apply(testTransformado, 2, min)
-test_ <- as.data.frame(scale(testTransformado, center = mins, scale = maxs - mins))
+train.nn1 = trainTransformado[trainprueba,]
 
+nn1 = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=train.nn1,hidden = 5, threshold = 0.01, stepmax = 1e+06)
 
-nn1 = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=train_)
-nn1 = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=train_, hidden = 2)
+plot(nn1)
+# nn1 = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=train_, hidden = 2)
 
 #nn1 = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=train_)
-nn1 = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=train_, hidden = 3)
+# nn1 = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=train_, hidden = 3)
 
-n <- c("PAY_1", "PAY_2", "BILL_AMT1", "LIMIT_BAL","AGE","ed.school","PAY_AMT1","PAY_5","marriage.married")
-
-pred.nn1 = compute(nn1, train_[names(train_) %in% n])
-#plot(nn1)
-
-
-#pred.nn1 = compute(nn1,testTransformado[names(testTransformado) %in% n])
-
-pred.nn1_ = pred.nn1$net.result*(max(train_$default.payment.next.month)-min(train_$default.payment.next.month))+min(train_$default.payment.next.month)
-
-train.r = (train_$default.payment.next.month)*(max(train_$default.payment.next.month)-min(train_$default.payment.next.month))+min(train_$default.payment.next.month)
-
-calculateError(pred.nn1_,train.r)
-
-
-
-nn1.test = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=test_, hidden = 3)
-
-pred.nn1test = compute(nn1.test, test_[names(test_) %in% n])
-
-pred.nn1_test = pred.nn1$net.result*(max(train_$default.payment.next.month)-min(train_$default.payment.next.month))+min(train_$default.payment.next.month)
-
-test.r = (test_$default.payment.next.month)*(max(test_$default.payment.next.month)-min(test_$default.payment.next.month))+min(test_$default.payment.next.month)
-
-
-calculateError(pred.nn1_test,test.r)
+# n <- c("PAY_1", "PAY_2", "BILL_AMT1", "LIMIT_BAL","AGE","ed.school","PAY_AMT1","PAY_5","marriage.married")
+# 
+# pred.nn1 = compute(nn1, train_[names(train_) %in% n])
+# #plot(nn1)
+# 
+# 
+# #pred.nn1 = compute(nn1,testTransformado[names(testTransformado) %in% n])
+# 
+# pred.nn1_ = pred.nn1$net.result*(max(train_$default.payment.next.month)-min(train_$default.payment.next.month))+min(train_$default.payment.next.month)
+# 
+# train.r = (train_$default.payment.next.month)*(max(train_$default.payment.next.month)-min(train_$default.payment.next.month))+min(train_$default.payment.next.month)
+# 
+# calculateError(pred.nn1_,train.r)
+# 
+# 
+# 
+# nn1.test = neuralnet(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=test_, hidden = 3)
+# 
+# pred.nn1test = compute(nn1.test, test_[names(test_) %in% n])
+# 
+# pred.nn1_test = pred.nn1$net.result*(max(train_$default.payment.next.month)-min(train_$default.payment.next.month))+min(train_$default.payment.next.month)
+# 
+# test.r = (test_$default.payment.next.month)*(max(test_$default.payment.next.month)-min(test_$default.payment.next.month))+min(test_$default.payment.next.month)
+# 
+# 
+# calculateError(pred.nn1_test,test.r)
 
 
 
@@ -531,6 +528,7 @@ perf = performance(rf.model, "tpr", "fpr")
 auc.rf = performance(rf.model, measure = "auc")
 print(auc.rf@y.values[[1]])
 plot(perf)
+
 
 ```
 
