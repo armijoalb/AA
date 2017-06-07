@@ -286,7 +286,7 @@ Eout.m3 = calculateError(pred.m3, testTransformado$default.payment.next.month)
 Eout.m3
 ```
 
-Nuestro mejor modelo es el tercer modelo, ya que es el más simple de los 3 y obtiene resultados casi iguales que los anteriores. La diferencia entre el error dentro de la muestra y fuera de la muestra son muy parecidos, por lo tanto, el modelo no presenta sobreajuste.Ahora pasaremos a calcular la curva ROC de este modelo, y también calcularemos el área de esta.
+Nuestro mejor modelo es el tercer modelo, ya que es el más simple de los 3 y obtiene resultados casi iguales que los anteriores. La diferencia entre el error dentro de la muestra y fuera de la muestra son muy parecidos, por lo tanto, el modelo no presenta sobreajuste.Ahora pasaremos a calcular la curva ROC de este modelo(utilizamos las probabilidades para calcular la curva ROC, para ello utilizamos la libreria ROCR. Primero calculamos las probabilidades del modelo y con estas dibujamos la curva ROC), y también calcularemos el área debajo de la curva.
 
 ```{r}
 linear.model = ROCR::prediction(pred.m3, testTransformado$default.payment.next.month)
