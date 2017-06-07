@@ -465,72 +465,7 @@ calculateError(pred.nn1_test,test.r)
 Para utilizar el clasificador SVM, utilizaremos el paquete _e1071_, dentro de este se encuentra la función svm, esta por defecto utiliza un kernel radial. La fórmula que utilizaremos será la misma que las anteriormente utilizadas. Probaremos con diferentes valores para este argumento y nos quedaremos con el mejor de ellos.
 
 Después, calcularemos la curva ROC del modeo elegido.
-```{r}
-svm1 = e1071::svm(default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married, data=trainTransformado, type="C" )
-summary(svm1)
 
-pred.svm1 = predict(svm1, trainTransformado)
-predTs.svm1 = predict(svm1, testTransformado)
-
-Ein.svm1 = mean( pred.svm1 != trainTransformado$default.payment.next.month )
-Eout.svm1 = mean(predTs.svm1 != testTransformado$default.payment.next.month)
-Ein.svm1
-Eout.svm1
-```
-
-```{r}
-svm2 = e1071::svm(default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married, data=trainTransformado , gamma=0.5, type="C")
-
-
-pred.svm2 = predict(svm2, trainTransformado)
-predTs.svm2 = predict(svm2, testTransformado)
-
-Ein.svm2 = mean(pred.svm2 != trainTransformado$default.payment.next.month)
-Eout.svm2 = mean(predTs.svm2 != testTransformado$default.payment.next.month)
-Ein.svm2
-Eout.svm2
-```
-
-
-```{r}
-svm3 = e1071::svm(default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married, data=trainTransformado , gamma=0.01, type="C", probability=TRUE)
-
-
-pred.svm3 = predict(svm3, trainTransformado)
-predTs.svm3 = predict(svm3, testTransformado, decision.values=T)
-salida = predict(svm3, testTransformado, type="class")
-
-Ein.svm3 = mean(pred.svm3 != trainTransformado$default.payment.next.month)
-Eout.svm3 = mean(salida != testTransformado$default.payment.next.month)
-Ein.svm3
-Eout.svm3
-```
-
-```{r}
-svm4 = e1071::svm(default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married, data=trainTransformado , gamma=2, type="C")
-
-
-pred.svm4 = predict(svm4, trainTransformado)
-predTs.svm4 = predict(svm4, testTransformado)
-
-Ein.svm4 = mean(pred.svm4 != trainTransformado$default.payment.next.month)
-Eout.svm4 = mean(predTs.svm4 != testTransformado$default.payment.next.month)
-Ein.svm4
-Eout.svm4
-```
-
-```{r}
-svm5 = e1071::svm(default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married, data=trainTransformado , gamma=15, type="C")
-
-
-pred.svm5 = predict(svm5, trainTransformado)
-predTs.svm5 = predict(svm5, testTransformado)
-
-Ein.svm5 = mean(pred.svm5 != trainTransformado$default.payment.next.month)
-Eout.svm5 = mean(predTs.svm5 !=  testTransformado$default.payment.next.month)
-Ein.svm5
-Eout.svm5
-```
 
 En este caso, el mejor modelo es el tercero, ya que es el que tiene un error fuera de la muestra menor. Ahora calcularemos su curva ROC.
 
