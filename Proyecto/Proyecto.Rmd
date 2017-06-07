@@ -25,9 +25,11 @@ set.seed(1)
 ```
 
 
-## 1. default of credit card clients Data Set (Clasificación)
+# 1. default of credit card clients Data Set (Clasificación)
 
-La base de datos se centra en el caso de los pagos por defecto de los clientes en Taiwán y compara la precisión predictiva de la probabilidad de incumplimiento entre seis métodos de minería de datos. Desde la perspectiva de la gestión de riesgos, el resultado de la precisión predictiva de la probabilidad estimada de incumplimiento será más valioso que el resultado binario de la clasificación - clientes creíbles o no creíbles. Con la probabilidad real de default como variable de respuesta (Y), y la probabilidad predictiva de default como variable independiente (X), el resultado de regresión lineal simple (Y = A + BX) muestra que el modelo de predicción producido por la red neuronal artificial tiene el mayor coeficiente de determinación. Su intercepción de regresión (A) es cercana a cero, y el coeficiente de regresión (B) a uno. Por lo tanto, entre las seis técnicas de minería de datos, la red neuronal artificial es la única que puede estimar con precisión la probabilidad real de incumplimiento. Dichas caracteristicas son:
+## Introducción.
+
+La base de datos se centra en el caso de los pagos por defecto de los clientes en Taiwán y compara la probabilidad de que un usuario pague o no pague según datos de pagos anteriores. Desde la perspectiva de la gestión de riesgos, la peor predicción erronea es considerar que un cliente pagará cuando es falso. Las caracteristicas son:
 
 Limit_bat: Cantidad de credito bancario dado(en dolares), incluye el credito individual y de su familia.
 Sex: genero (0 = mujer, 1 = hombre).
@@ -41,15 +43,14 @@ Marriage: Estado marital en 3 variables:
   Single: soltero.
   Others: otros.
 Age: Edad.
-Pay_1-6: 
-Historia del pago anterior. Seguimos los últimos registros de pagos mensuales (de abril a septiembre de 2005) de la siguiente manera: X6 = el estado de pago en septiembre de 2005; X7 = estado de reembolso en agosto de 2005; . . . X11 = el estado de pago en abril de 2005. La escala de medición para el estado de pago es: -1 = pagar debidamente; 1 = retraso de pago de un mes; 2 = retardo de pago por dos meses; . . Unesdoc.unesco.org unesdoc.unesco.org 8 = retardo de pago por ocho meses; 9 = retraso de pago por nueve meses y más.
+Pay_1-6: Historia del pago anterior. Cada variable es un mes distinto. La escala de medición para el estado de pago es: -1 = pagar debidamente; 1 = retraso de pago de un mes; 2 = retardo de pago por dos meses...
+Bill_Amt1-6:Estado de la cuenta actual.
+Pay_Amt1-6: Pago realizado en ese mes.
+default payment next month: Variable que aprendemos, basamos si la persona pagará o no el siguiente mes.
 
-Bill_Amt1-6: 
-Monto del estado de cuenta (dólar NT). X12 = monto del estado de cuenta en septiembre de 2005; X13 = monto del estado de cuenta en agosto de 2005; . . . X17 = monto del estado de cuenta en abril de 2005.
-Pay_Amt1-6:
-Monto del pago anterior (dólar NT). X18 = cantidad pagada en septiembre de 2005; X19 = cantidad pagada en agosto de 2005; . . X23 = cantidad pagada en abril de 2005.
-default payment next month: Variable que aprendemos, basamos si lapersona pagará o no el siguiente mes.
+Nuestro objetivo será intentar conseguir una predicción lo mejor posibles, intentando minimizar los falsos positivos (predecimos que un cliente pagará, pero no este no paga).
 
+## Lectura de la base de datos.
 
 ```{r} 
 credit_card =  read.csv("default_of_credict_card_clients.csv"
@@ -58,6 +59,10 @@ attach(credit_card)
 summary(credit_card)
 
 ```
+
+## Creación de los conjuntos de training y test.
+
+Para el training, utilizaremos el 70% de los datos, y dejaremos el 30% restante para el test.
 
 ```{r}
 set.seed(1)
@@ -72,17 +77,16 @@ Lo primero que queremos hacer es comprobar si hay datos perdidos, y si es así; 
 ```{r}
 anyNA(credit_card.train)
 ```
-Como  no tenemos ningún dato pérdido, no tendremos que reemplazar los valores. Si hubieramos tenido valores tenido, podríamos haber utilizado la función _knnImputation_ para reemplazar los valores perdidos por los k vecinos mÃ¡s cercanos (normalmente k=3). TambiÃ©n podrÃ?amos utilizar la media como sustituto del valor pÃ©rdido.
+Como  no tenemos ningún dato pérdido, no tendremos que reemplazar los valores. Si hubieramos tenido valores tenido, podríamos haber utilizado la función _knnImputation_ para reemplazar los valores perdidos por los k vecinos más cercanos (por defecto la función utiliza k=3). También podríamos utilizar la media como sustituto de un valor pérdido.
 
-Lo siguiente que vamos a hacer es modificar aquellas columnas que separan los datos en variables "clases" como por ejemplo la columna _EDUCATION_, que indica que tipo de estudios tiene cada persona. Por cada tipo en los que los separe, crearemos una nueva columna que indique con 0s y 1s la pertenencia a ese tipo. TambiÃ©n tenemos que realizar este proceso con la columna _MARRIAGE_
+Lo siguiente que vamos a hacer es modificar aquellas columnas que separan los datos en "clases" como por ejemplo la columna _EDUCATION_, que indica que tipo de estudios tiene cada persona. Por cada tipo en los que los separe, crearemos una nueva columna que indique con 0s y 1s la pertenencia a ese tipo. También tenemos que realizar este proceso con la columna _MARRIAGE_
 
 ```{r}
 # Modificamos la columna 2, llamada sex, para dividir los datos en 0=mujer, 1=hombre.
 credit_card.train$SEX = ifelse(credit_card.train$SEX == 2, 0, 1)
-summary(credit_card.train)
 ```
 ```{r}
-# TambiÃ©n tenemos que modificar la columna EDUCATION, la dividiremos en cuatro columnas diferentes:
+# También tenemos que modificar la columna EDUCATION, la dividiremos en cuatro columnas diferentes:
 # ed.other, ed.university, ed.high_school, ed.school
 ed.other = ifelse(credit_card.train$EDUCATION == 4, 1,0)
 ed.university = ifelse(credit_card.train$EDUCATION == 2, 1, 0)
@@ -93,11 +97,10 @@ credit_card.train = cbind(credit_card.train,ed.other, ed.high_school, ed.school,
 
 # Borramos la columna EDUCATION.
 credit_card.train = credit_card.train[,-which(colnames(credit_card.train) == "EDUCATION")]
-summary(credit_card.train)
 ```
 
 ```{r}
-# TambiÃ©n tenemos que modificar la columna mariage. Introduciremos tres nueva columnas: marriage.married, marriage.single, marriage.others.
+# También tenemos que modificar la columna mariage. Introduciremos tres nueva columnas: marriage.married, marriage.single, marriage.others.
 marriage.married = ifelse(credit_card.train$MARRIAGE == 1, 1,0)
 marriage.single = ifelse(credit_card.train$MARRIAGE == 2, 1,0)
 marriage.others = ifelse(credit_card.train$MARRIAGE == 3, 1,0)
@@ -107,30 +110,29 @@ credit_card.train = cbind(credit_card.train, marriage.married, marriage.single, 
 
 # Borramos la variable MARRIAGE.
 credit_card.train = credit_card.train[, -which(colnames(credit_card.train) == "MARRIAGE")]
-summary(credit_card.train)
 ```
 
-TambiÃ©n vamos a cambiar el nombre de la columna _PAY0_ por _PAY1_.
+También vamos a cambiar el nombre de la columna _PAY0_ por _PAY1_.
 ```{r}
 colnames(credit_card.train)[which(colnames(credit_card.train)=="PAY_0")]="PAY_1"
-summary(credit_card.train)
 ```
 
 
-Por Último.
+Por último, utilizaremos la función preProcess para aplicar la transformación BoxCox a las variables que tengan una varianza elevada.
 ```{r}
-# Por Ãºltimo, utilizamos la funciÃ³n preprocess.
+# Por Último, utilizamos la función preProcess.
 trans = preProcess(credit_card.train, c("BoxCox") )
 trainTransformado = predict(trans, credit_card.train)
 summary(trainTransformado)
 
 ```
 
-  
-```{r}
-# Para hacer mÃ¡s sencillo hacer las transformaciones al conjunto de test, se crearÃ¡n funciones para realizar todo lo anterior.
+Para no tener que repetir este mismo proceso cuando vayamos a calcular el error fuera de la muestra de entrenamiento, vamos a crear una función que se encargue directamente de ello.
 
-# FunciÃ³n para comprobar si hay datos pÃ©rdidos y reemplazarlos.
+```{r}
+# Para hacer más sencillo hacer las transformaciones al conjunto de test, se crearán funciones para realizar todo lo anterior.
+
+# Función para reemplazar las columnas.
 reemplazarCol = function(x){
   # Columna SEX
   x$SEX = ifelse(x$SEX == 2, 0, 1)
@@ -161,11 +163,13 @@ reemplazarCol = function(x){
   x
 }
 
+# Función que realiza la transformación BoxCox.
 preprocesar = function(x,pred=trans){
   transTest = predict(pred, x)
   transTest
 }
 
+# Función que engloba las funciones anteriores.
 prepareTest = function(x){
   tr = reemplazarCol(x)
   tr= preprocesar(x)
@@ -186,21 +190,14 @@ Según los resultados del filtro PCA, no hay ningún dato que sea redundate. Por
 ## Estudio de los parámetros e hiperparámetros.
 Vamos a realizar un estudio sobre los parámetros para saber cuáles de ellos son los más importantes. Con los más importantes crearemos los modelos lineales que vamos a ajustar.
 
-
-
-```{r}
-#modelo_step = glm(default.payment.next.month ~ .,family = gaussian, data=trainTransformado)
-#modelo_principal = step(modelo_step)
-
-```
-Regsubset
-
+Con la función regsubsets, podemos encontrar que atributos son mejores a la hora de escogerlos antes.
 ```{r}
 muestra_regsubsets = regsubsets(default.payment.next.month ~ ., data = trainTransformado, nvmax = 28, method = "exhaustive")
 summary((muestra_regsubsets))
 reg.sumary = summary(muestra_regsubsets)
 ```
 
+Ahora, calcularemos los valores mínimos de los criterios cp y BIC. Utilizaremos estos dos valores para probar diferentes modelos.
 ```{r}
 par(mfrow=c(1,2))
 plot(reg.sumary$cp, xlab="number of variables", ylab="cp", type="l")
@@ -210,26 +207,9 @@ which.min(reg.sumary$bic)
 par(mfrow=c(1,1) )
 ```
 
+Según los resultados obtenidos, los dos mejores conjuntos de datos son de tamaño 17 y de tamaño 9. Tomaremos los atributos en el orden que aparecen en la salida de la función regsubsets.
 
-
-```{r}
-variablesSignificativasCredit = character()
-
-for(nombre in names(trainTransformado) ){
-  pred = trainTransformado[, nombre]
-  modelo = lm(trainTransformado$default.payment.next.month~pred)
-  p_valor = summary(modelo)$coefficients[,4][2]
-  
-  if(p_valor < 0.1 && p_valor > 0){
-    variablesSignificativasCredit = c(variablesSignificativasCredit, nombre)
-  }
-  
-}
-
-variablesSignificativasCredit
-```
-
-# Ajuste de modelos.
+## Modelos lineales.
 
 Para hacer más sencillo el cálculo del error teniendo un modelo, crearemos funciones para calcular el error, para calcular el conjunto de datos precedidos, y otra que las englobe.
 
@@ -260,11 +240,12 @@ Transformamos los valores de test.
 ```{r}
 testTransformado = reemplazarCol(credit_card.test)
 testTransformado = predict(trans, testTransformado)
-dim(trainTransformado)
-dim(testTransformado)
 summary(testTransformado)
 ```
 
+Ahora, pasaremos a probar diferentes modelos lineales. Para ello utilizaremos la función glm, que utiliza regresión logística. Una vez hecho esto, nos quedaremos con el modelo que menor error fuera de la muestra obtenga y que sea más sencillo. Calcularemos también el error dentro de la muestra para comprobar que ambos valores son cercanos y que no hay sobreajuste en el modelo.
+
+Por último, calcularemos la curva ROC y el área del modelo que hayamos seleccionado.
 
 ```{r}
 m1 = glm(default.payment.next.month~LIMIT_BAL+SEX+PAY_3+PAY_4+PAY_5+PAY_6+BILL_AMT1+BILL_AMT2+BILL_AMT3+PAY_AMT1+PAY_AMT2+PAY_AMT3+PAY_AMT3+PAY_AMT4+PAY_AMT5+PAY_AMT6+ed.other+ed.high_school+ed.school+ed.university+marriage.married+marriage.single, data=trainTransformado, family="binomial")
@@ -305,7 +286,7 @@ Eout.m3 = calculateError(pred.m3, testTransformado$default.payment.next.month)
 Eout.m3
 ```
 
-Nuestro mejor modelo es el tercer modelo, ya que es el más simple de los 3 y obtiene resultados casi iguales que los anteriores. Calcularemos la curva ROC de este modelo, y también calcularemos el área de esta.
+Nuestro mejor modelo es el tercer modelo, ya que es el más simple de los 3 y obtiene resultados casi iguales que los anteriores. La diferencia entre el error dentro de la muestra y fuera de la muestra son muy parecidos, por lo tanto, el modelo no presenta sobreajuste.Ahora pasaremos a calcular la curva ROC de este modelo, y también calcularemos el área de esta.
 
 ```{r}
 linear.model = ROCR::prediction(pred.m3, testTransformado$default.payment.next.month)
@@ -317,7 +298,7 @@ plot(perf)
 
 
 ## Modelos Boosting.
-Para crear los modelos del boosting, utilizaremos la biblioteca fastAdaboost, que contiene la función adaboost la cuál implementa el algoritmo adaboost. Uno de los parámetros de este algoritmo indica el número de clasficadores que se van a utilizar para separar los datos de la muestra; probaremos varios números de clasificadores. Nos quedaremos con el clasificador que menor error fuera de la muestra cometa. También calcularemos su curva ROC, y calcularemos cuál es el área de esta.
+Para crear los modelos del boosting, utilizaremos la biblioteca ada, que contiene la función ada la cuál implementa el algoritmo adaboost. Uno de los parámetros de este algoritmo indica el número de clasficadores que se van a utilizar para separar los datos de la muestra; probaremos varios números de clasificadores. Nos quedaremos con el clasificador que menor error fuera de la muestra cometa. También calcularemos su curva ROC, y calcularemos cuál es el área de esta.
 
 ```{r}
 bt1 = ada::ada(default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=trainTransformado, iter=10)
@@ -331,7 +312,7 @@ Eout.bt1
 ```
 
 ```{r}
-bt2 = ada::ada(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=trainTransformado, iter=50)
+bt2 = ada::ada(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married,data=trainTransformado, iter=30)
 pred.bt2 = predict(bt2, trainTransformado)
 Ein.bt2 = mean(pred.bt2 != trainTransformado$default.payment.next.month)
 Ein.bt2
@@ -353,46 +334,9 @@ Eout.bt3 = mean(predTs.bt3 != testTransformado$default.payment.next.month)
 Eout.bt3
 ```
 
-```{r}
-bt4 = ada::ada(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married+PAY_3+SEX+PAY_AMT2+ed.high_school+PAY_AMT4+marriage.single+marriage.others+BILL_AMT2,data=trainTransformado, iter=10)
-pred.bt4 = predict(bt4, trainTransformado)
-Ein.bt4 = mean( pred.bt4 != trainTransformado$default.payment.next.month )
-Ein.bt4
 
-predTs.bt4 = predict(bt4, testTransformado)
-Eout.bt4 = mean( predTs.bt4 != testTransformado$default.payment.next.month )
-Eout.bt4
-```
-
-```{r}
-bt5 = ada::ada(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married+PAY_3+SEX+PAY_AMT2+ed.high_school+PAY_AMT4+marriage.single+marriage.others+BILL_AMT2,data=trainTransformado, iter=50)
-pred.bt5 = predict(bt5, trainTransformado)
-Ein.bt5 = mean( pred.bt5 != trainTransformado$default.payment.next.month )
-Ein.bt5
-
-predTs.bt5 = predict(bt5, testTransformado)
-Eout.bt5 = mean( predTs.bt5 != testTransformado$default.payment.next.month )
-Eout.bt5
-```
-
-
-```{r}
-bt6 = ada::ada(formula = default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married+PAY_3+SEX+PAY_AMT2+ed.high_school+PAY_AMT4+marriage.single+marriage.others+BILL_AMT2,data=trainTransformado, iter=5)
-pred.bt6 = predict(bt6, trainTransformado)
-Ein.bt6 = mean( pred.bt6 != trainTransformado$default.payment.next.month)
-Ein.bt6
-
-predTs.bt6 = predict(bt6, testTransformado)
-Eout.bt6 = mean( predTs.bt6 != testTransformado$default.payment.next.month )
-Eout.bt6
-```
-
-Como los errores son todos muy parecidos entre ellos, nos quedaremos con el modelo más sencillo, el cuál es el modelo 3.
+Como los errores son todos muy parecidos entre ellos, nos quedaremos con el modelo más sencillo, el cuál es el modelo 3; ya que es el que menos clasificadores utiliza.
 Ahora calcularemos su curva ROC y el area debajo de esta.
-
-```{r}
-print(table(predTs.bt3, testTransformado$default.payment.next.month))
-```
 
 ```{r}
 predi = predict(bt3, testTransformado, type = "probs")
@@ -459,17 +403,64 @@ plot(nn1)
 
 
 ## Modelos con clasificador SVM.
-Para utilizar el clasificador SVM, utilizaremos el paquete _e1071_, dentro de este se encuentra la función svm, esta por defecto utiliza un kernel radial. La fórmula que utilizaremos será la misma que las anteriormente utilizadas. Probaremos con diferentes valores para este argumento y nos quedaremos con el mejor de ellos.
+Para utilizar el clasificador SVM, utilizaremos el paquete _e1071_, dentro de este se encuentra la función svm, esta por defecto utiliza un kernel gaussiano. La fórmula que utilizaremos será la misma que las anteriormente utilizadas. Probaremos con diferentes valores para este parámetro y nos quedaremos con el mejor de ellos.
 
 Después, calcularemos la curva ROC del modeo elegido.
 
+```{r}
+svm1 = e1071::svm(formula=default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married, data=trainTransformado, gamma=0.1, type="C", tolerance=0.01)
 
-En este caso, el mejor modelo es el tercero, ya que es el que tiene un error fuera de la muestra menor. Ahora calcularemos su curva ROC.
+pred.svm1 = predict(svm1, trainTransformado)
+predTs.svm1 = predict(svm1, testTransformado)
+Ein.svm1 = mean(pred.svm1 != trainTransformado$default.payment.next.month)
+Eout.smv1 = mean(predTs.svm1 != testTransformado$default.payment.next.month)
+Ein.svm1
+Eout.svm1
+```
+
+```{r}
+svm2 = e1071::svm(formula=default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married, data=trainTransformado, gamma=0.01, type="C", tolerance=0.01)
+
+pred.svm2 = predict(svm2, trainTransformado)
+predTs.svm2 = predict(svm2, testTransformado)
+Ein.svm2 = mean(pred.svm2 != trainTransformado$default.payment.next.month)
+Eout.smv2 = mean(predTs.svm2 != testTransformado$default.payment.next.month)
+Ein.svm2
+Eout.svm2
+```
+
+```{r}
+svm3 = e1071::svm(formula=default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married, data=trainTransformado, gamma=1, type="C", tolerance=0.01)
+
+pred.svm3 = predict(svm3, trainTransformado)
+predTs.svm3 = predict(svm3, testTransformado)
+Ein.svm3 = mean(pred.svm3 != trainTransformado$default.payment.next.month)
+Eout.smv3 = mean(predTs.svm3 != testTransformado$default.payment.next.month)
+Ein.svm3
+Eout.svm3
+```
+
+```{r}
+svm4 = e1071::svm(formula=default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married, data=trainTransformado, gamma=15, type="C", tolerance=0.01)
+
+pred.svm4 = predict(svm4, trainTransformado)
+predTs.svm4 = predict(svm4, testTransformado)
+Ein.svm4 = mean(pred.svm4 != trainTransformado$default.payment.next.month)
+Eout.smv4 = mean(predTs.svm4 != testTransformado$default.payment.next.month)
+Ein.svm4
+Eout.svm4
+```
+
+Para estos cuatro modelos, el mejor de todos ellos es el primero, ya que tiene el error fuera de la muestra más bajo. Además, la diferencia entre el error dentro de la muestra y el error fuera de la muestra no es grande por lo que sabemos que el modelo no tiene sobreajuste.
+
+Ahora, calcularemos las probabilidades del modelo que hemos elegido y calcularemos su curva ROC y su área.
 
 
 ```{r}
-s.svm = attr(predTs.svm3, "decision.values")
-svm.model = ROCR::prediction(s.svm, testTransformado$default.payment.next.month)
+s.svm = e1071::svm(formula=default.payment.next.month~PAY_1+PAY_2+BILL_AMT1+LIMIT_BAL+AGE+ed.school+PAY_AMT1+PAY_5+marriage.married, data=trainTransformado, gamma=0.1, type="C", tolerance=0.01, probability=T, decision.values=T)
+pred.s = predict(s.svm, testTransformado, probability=T)
+probs.svm = attr(pred.s, "probabilities")[,1]
+svm.model = ROCR::prediction(probs.svm, testTransformado$default.payment.next.month)
 perf = performance(svm.model, "tpr", "fpr")
 auc.svm = performance(svm.model, measure = "auc")
 print(auc.svm@y.values[[1]])
